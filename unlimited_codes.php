@@ -48,10 +48,10 @@ function unlimited_codes_admin_styles()
 {
     if(get_post_type(get_the_ID()) == "code")
     {
-        wp_register_style( 'custom_codes_admin_css', WP_PLUGIN_URL. '/unlimited-codes/css/style.css', false, '1.0.0' );
+        wp_register_style( 'custom_codes_admin_css', WP_PLUGIN_URL. '/unlimited-codes-master/css/style.css', false, '1.0.0' );
         wp_enqueue_style( 'custom_codes_admin_css' );
 
-        wp_enqueue_script( 'codes_script', WP_PLUGIN_URL. '/unlimited-codes/js/scripts.js', array('jquery') );
+        wp_enqueue_script( 'codes_script', WP_PLUGIN_URL. '/unlimited-codes-master/js/scripts.js', array('jquery') );
     }
 }
 
@@ -141,7 +141,7 @@ function unlimited_codes_meta_options( $post )
             { echo " selected='selected' "; } ?> value="footer">Footer</option>
         </select></p>
 
-        <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/unlimited-codes/'; ?>" />
+        <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/unlimited-codes-master/'; ?>" />
         <input type="hidden" id="post_id" value="<?php echo get_the_ID(); ?>" />
     
         </div>
