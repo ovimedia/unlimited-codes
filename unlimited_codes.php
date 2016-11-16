@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Unlimited Codes 
-Description: Plugin that allows generate diferrent types of codes in your Wordpress.
+Description: Plugin that allows include diferent types of codes in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
