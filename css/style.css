@@ -1,0 +1,7 @@
+.meta_div_codes, .meta_div_codes select, .meta_div_codes p{width: 100%;}
+
+.meta_div_codes p{margin-bottom: 0px;margin-top: 0px;}
+
+.meta_div_codes p label{font-weight: bold;}
+
+.meta_div_codes p select{margin: 3px 0px 15px 0px;} 
