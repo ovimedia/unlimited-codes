@@ -9,19 +9,26 @@ Version: 0.1
 Plugin URI: http://www.ovimedia.es/
 */
 
+function uc_load_languages() 
+{
+    load_plugin_textdomain( 'unlimited-codes', false, '/'.basename( dirname( __FILE__ ) ) . '/languages/' ); 
+}
+
+add_action( 'init', 'uc_load_languages' );
+
 function init_unlimted_codes()
 {    
     $labels = array(
-	'name' => _x( 'Códigos', 'post type general name' ),
-        'singular_name' => _x( 'Códigos', 'post type singular name' ),
-        'add_new' => _x( 'Añadir nuevo', 'code' ),
-        'add_new_item' => __( 'Añadir nuevo código' ),
-        'edit_item' => __( 'Editar código' ),
-        'new_item' => __( 'Nuevo código' ),
-        'view_item' => __( 'Ver código' ),
-        'search_items' => __( 'Buscar códigos' ),
-        'not_found' =>  __( 'No se han encontrado códigos' ),
-        'not_found_in_trash' => __( 'No se han encontrado códigos en la papelera' ),
+	'name' => translate( 'Codes', 'unlimited-codes' ),
+        'singular_name' => translate( 'Codes', 'unlimited-codes' ),
+        'add_new' =>  translate( 'Add code', 'unlimited-codes' ),
+        'add_new_item' => translate( 'Add new code', 'unlimited-codes' ),
+        'edit_item' => translate( 'Edit codes', 'unlimited-codes' ),
+        'new_item' => translate( 'New code', 'unlimited-codes' ),
+        'view_item' => translate( 'Show code', 'unlimited-codes' ),
+        'search_items' => translate( 'Search codes', 'unlimited-codes' ),
+        'not_found' =>  translate( 'No codes found', 'unlimited-codes' ),
+        'not_found_in_trash' => translate( 'No codes found in trash', 'unlimited-codes' ),
         'parent_item_colon' => ''
     );
  
@@ -35,7 +42,7 @@ function init_unlimted_codes()
         'hierarchical' => false,
         'menu_position' => 70,
         'menu_icon' => 'dashicons-editor-code',
-        'supports' => array( 'title', 'editor' )
+        'supports' => array( 'title', 'editor')
     );
  
     register_post_type( 'code', $args );
@@ -48,10 +55,10 @@ function unlimited_codes_admin_styles()
 {
     if(get_post_type(get_the_ID()) == "code")
     {
-        wp_register_style( 'custom_codes_admin_css', WP_PLUGIN_URL. '/unlimited-codes-master/css/style.css', false, '1.0.0' );
+        wp_register_style( 'custom_codes_admin_css', WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/css/style.css', false, '1.0.0' );
         wp_enqueue_style( 'custom_codes_admin_css' );
 
-        wp_enqueue_script( 'codes_script', WP_PLUGIN_URL. '/unlimited-codes-master/js/scripts.js', array('jquery') );
+        wp_enqueue_script( 'codes_script', WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/js/scripts.js', array('jquery') );
     }
 }
 
@@ -61,7 +68,7 @@ add_action( 'add_meta_boxes', 'unlimited_codes_metabox' );
 
 function unlimited_codes_metabox()
 {
-	add_meta_box( 'zone-code', 'Opciones del código: ', 'unlimited_codes_meta_options', 'code', 'side', 'default' );
+	add_meta_box( 'zone-code', translate( 'Code options', 'unlimited-codes' ), 'unlimited_codes_meta_options', 'code', 'side', 'default' );
 }
 
 function unlimited_codes_meta_options( $post )
@@ -70,9 +77,9 @@ function unlimited_codes_meta_options( $post )
     
     ?>
    <div class="meta_div_codes">
-      <p><label for="uc_post_type_id">Tipo de post: </label></p>
+      <p><label for="uc_post_type_id"><?php echo translate( 'Post type:', 'unlimited-codes' ) ?> </label></p>
       <p><select id="uc_post_type_id" name="uc_post_type_id">
-            <option value="all"> --- Toda la web ---</option>
+            <option value="all"> --- <?php echo translate( 'All types', 'unlimited-codes' ) ?> ---</option>
             <?php
 
             $results = $wpdb->get_results( 'SELECT DISTINCT post_type FROM '.$wpdb->prefix.'posts WHERE post_status like "publish" order by 1 asc'  );
@@ -90,9 +97,9 @@ function unlimited_codes_meta_options( $post )
         ?>
         </select></p>
 
-        <p><label for="uc_post_code_id">Cargar en: </label></p>
+        <p><label for="uc_post_code_id"><?php echo translate( 'Load into:', 'unlimited-codes' ) ?> </label></p>
         <p><select id="uc_post_code_id" name="uc_post_code_id">
-           <option value="0" > --- Mostrar en Todos---</option>
+           <option value="0" > --- <?php echo translate( 'All', 'unlimited-codes' ) ?>---</option>
             <?php
 
 
@@ -123,25 +130,25 @@ function unlimited_codes_meta_options( $post )
 
         </select></p>
 
-        <p><label for="location_code_page">Zona de la página: </label></p>
+        <p><label for="location_code_page"><?php echo translate( 'Post zone:', 'unlimited-codes' ) ?> </label></p>
         <p><select id="location_code_page" name="location_code_page">
-            <option value="-1"> --- Cargar código en ---</option>
+            <option value="-1"> --- <?php echo translate( 'Load code into', 'unlimited-codes' ) ?> ---</option>
             <option 
             <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "head")
-            { echo " selected='selected' "; } ?> value="head">Head</option>
+            { echo " selected='selected' "; } ?> value="head"><?php echo translate( 'Head', 'unlimited-codes' ) ?></option>
             <option 
             <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "before_content")
             { echo " selected='selected' "; } ?>
-            value="before_content">Before Content</option>
+            value="before_content"><?php echo translate( 'Before content', 'unlimited-codes' ) ?></option>
             <option 
             <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "after_content")
-            { echo " selected='selected' "; } ?> value="after_content">After Content</option>
+            { echo " selected='selected' "; } ?> value="after_content"><?php echo translate( 'After content', 'unlimited-codes' ) ?></option>
             <option 
             <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "footer")
-            { echo " selected='selected' "; } ?> value="footer">Footer</option>
+            { echo " selected='selected' "; } ?> value="footer"><?php echo translate( 'Footer', 'unlimited-codes' ) ?></option>
         </select></p>
 
-        <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/unlimited-codes-master/'; ?>" />
+        <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />
         <input type="hidden" id="post_id" value="<?php echo get_the_ID(); ?>" />
     
         </div>
@@ -222,5 +229,8 @@ function unlimited_codes($zone)
 	
 	return str_replace($original, $changed, do_shortcode(stripslashes ($result)));
 }
+
+
+
 
 ?>
