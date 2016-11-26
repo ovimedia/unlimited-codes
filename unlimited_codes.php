@@ -184,7 +184,7 @@ add_filter( 'the_content', 'insert_codes_body' );
 
 function insert_codes_footer() 
 {
-	echo unlimited_codes("footer");
+	echo do_shortcode(unlimited_codes("footer"));
 }
 
 add_action( 'wp_footer', 'insert_codes_footer');
@@ -227,7 +227,7 @@ function unlimited_codes($zone)
 					$result .= $code->post_content;
 	}	
 	
-	return str_replace($original, $changed, do_shortcode(stripslashes ($result)));
+	return str_replace($original, $changed, stripslashes ($result));
 }
 
 
