@@ -15,8 +15,12 @@ jQuery(document).ready(function($)
 
         request.done(function( msg ) 
         {	
-            jQuery("#uc_post_code_id").empty();
+            jQuery("#uc_post_code_id").children('option:not(:first)').remove();
             jQuery("#uc_post_code_id").append(msg);
         });
     }
+
+      $('select').select2({tags: true});
+    
+    
 }); 

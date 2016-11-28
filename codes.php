@@ -17,8 +17,6 @@ if(isset($_REQUEST["post_type"]))
 	
 	$posts = get_posts($args); 
 
-	echo '<option value="0" > --- Mostrar en Todos---</option>';
-
 	foreach($posts as $post)
 	{
 		echo '<option ';

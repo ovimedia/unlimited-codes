@@ -5,7 +5,7 @@ Description: Plugin that allows include diferent types of codes in your Wordpres
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 0.1
+Version: 0.2
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -56,9 +56,16 @@ function unlimited_codes_admin_styles()
     if(get_post_type(get_the_ID()) == "code")
     {
         wp_register_style( 'custom_codes_admin_css', WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/css/style.css', false, '1.0.0' );
+        
         wp_enqueue_style( 'custom_codes_admin_css' );
+        
+         wp_register_style( 'codes_select2_css', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css', false, '1.0.0' );
+        
+        wp_enqueue_style( 'codes_select2_css' );
 
         wp_enqueue_script( 'codes_script', WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/js/scripts.js', array('jquery') );
+        
+        wp_enqueue_script( 'codes_select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js', array('jquery') );
     }
 }
 
@@ -79,7 +86,7 @@ function unlimited_codes_meta_options( $post )
    <div class="meta_div_codes">
       <p><label for="uc_post_type_id"><?php echo translate( 'Post type:', 'unlimited-codes' ) ?> </label></p>
       <p><select id="uc_post_type_id" name="uc_post_type_id">
-            <option value="all"> --- <?php echo translate( 'All types', 'unlimited-codes' ) ?> ---</option>
+            <option value="all"><?php echo translate( 'All types', 'unlimited-codes' ) ?></option>
             <?php
 
             $results = $wpdb->get_results( 'SELECT DISTINCT post_type FROM '.$wpdb->prefix.'posts WHERE post_status like "publish" order by 1 asc'  );
@@ -98,8 +105,7 @@ function unlimited_codes_meta_options( $post )
         </select></p>
 
         <p><label for="uc_post_code_id"><?php echo translate( 'Load into:', 'unlimited-codes' ) ?> </label></p>
-        <p><select id="uc_post_code_id" name="uc_post_code_id">
-           <option value="0" > --- <?php echo translate( 'All', 'unlimited-codes' ) ?>---</option>
+        <p><select  multiple="multiple" id="uc_post_code_id" name="uc_post_code_id[]">
             <?php
 
 
@@ -114,17 +120,23 @@ function unlimited_codes_meta_options( $post )
                  ); 
 
                 $posts = get_posts($args); 
+                
+                $values = get_post_meta( get_the_ID(), 'uc_post_code_id');
+                
+                echo '<option value="0" >'.translate( 'All', 'unlimited-codes' ).'</option>';
 
                 foreach($posts as $post)
                 {
                     echo '<option ';
 
-                     if(get_post_meta( get_the_ID(), 'uc_post_code_id', true) == $post->ID)
+                     if(in_array($post->ID, $values[0]))
                          echo ' selected="selected" ';
 
                     echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
                 } 
              }
+            else
+                echo '<option selected="selected" value="0" >'.translate( 'All', 'unlimited-codes' ).'</option>';
 
             ?>
 
@@ -132,7 +144,6 @@ function unlimited_codes_meta_options( $post )
 
         <p><label for="location_code_page"><?php echo translate( 'Post zone:', 'unlimited-codes' ) ?> </label></p>
         <p><select id="location_code_page" name="location_code_page">
-            <option value="-1"> --- <?php echo translate( 'Load code into', 'unlimited-codes' ) ?> ---</option>
             <option 
             <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "head")
             { echo " selected='selected' "; } ?> value="head"><?php echo translate( 'Head', 'unlimited-codes' ) ?></option>
@@ -218,12 +229,12 @@ function unlimited_codes($zone)
 	foreach($codes as $code)
 	{
         $post_type = get_post_meta( $code->ID, 'uc_post_type_id',  true );
-        $post_id = get_post_meta( $code->ID, 'uc_post_code_id', true );
+        $post_id = get_post_meta( $code->ID, 'uc_post_code_id');
         $post_location = get_post_meta( $code->ID, 'location_code_page', true );
          
 		if($post_type == "all" || $post_type == get_post_type(get_the_id()))
 			if( $post_location == $zone)
-				if(get_the_id() == $post_id || $post_id  == 0)
+				if(in_array(get_the_id(), $post_id[0]) || in_array(0, $post_id[0]))
 					$result .= $code->post_content;
 	}	
 	
