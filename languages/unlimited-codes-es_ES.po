@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2016-11-28 16:29+0100\n"
+"PO-Revision-Date: 2016-11-29 22:13+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -62,7 +62,7 @@ msgstr "No se encontraron código en la papelera"
 # @ su
 #: unlimited_codes.php:71
 msgid "Code options"
-msgstr "Opciones de código"
+msgstr "Opciones del código"
 
 # @ su
 #: unlimited_codes.php:80

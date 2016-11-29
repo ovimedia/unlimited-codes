@@ -20,7 +20,7 @@ jQuery(document).ready(function($)
         });
     }
 
-      $('select').select2({tags: true});
+      $('#zone-code select').select2({tags: true});
     
     
 }); 
