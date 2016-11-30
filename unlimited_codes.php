@@ -57,7 +57,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 'rewrite' => true,
                 'capability_type' => 'post',
                 'hierarchical' => false,
-                'menu_position' => 70,
+                'menu_position' => 50,
                 'menu_icon' => 'dashicons-editor-code',
                 'supports' => array( 'title', 'editor')
             );
@@ -175,12 +175,6 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "after_content")
                     { echo " selected='selected' "; } ?> value="after_content"><?php echo translate( 'After content', 'unlimited-codes' ) ?></option>
                     <option 
-                    <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "before_product")
-                    { echo " selected='selected' "; } ?> value="before_product"><?php echo translate( 'Before product', 'unlimited-codes' ) ?></option>
-                    <option 
-                    <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "after_product")
-                    { echo " selected='selected' "; } ?> value="after_product"><?php echo translate( 'After product', 'unlimited-codes' ) ?></option>
-                    <option 
                     <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "footer")
                     { echo " selected='selected' "; } ?> value="footer"><?php echo translate( 'Footer', 'unlimited-codes' ) ?></option>
                     </select>
@@ -224,12 +218,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
         
         public function insert_codes_before_product()
         {
-            echo do_shortcode($this->unlimited_codes("before_product"));
+            echo do_shortcode($this->unlimited_codes("before_content"));
         }
         
         public function insert_codes_after_product()
         {
-            echo do_shortcode($this->unlimited_codes("after_product"));
+            echo do_shortcode($this->unlimited_codes("after_content"));
         }
 
 
