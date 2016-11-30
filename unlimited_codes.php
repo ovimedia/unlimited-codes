@@ -224,12 +224,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
         
         public function insert_codes_before_product()
         {
-            echo $this->unlimited_codes("before_product");
+            echo do_shortcode($this->unlimited_codes("before_product"));
         }
         
         public function insert_codes_after_product()
         {
-            echo $this->unlimited_codes("after_product");
+            echo do_shortcode($this->unlimited_codes("after_product"));
         }
 
 
