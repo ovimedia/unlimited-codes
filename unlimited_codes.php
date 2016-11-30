@@ -14,7 +14,6 @@ if ( ! class_exists( 'unlimited_codes' ) )
 {
 	class unlimited_codes 
     {
-
         function __construct() 
         {   
             add_action( 'init', array( $this, 'uc_load_languages') );
@@ -24,7 +23,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_action( 'save_post', array( $this, 'uc_save_data_codes') );
             add_filter( 'the_content', array( $this, 'insert_codes_body') );
             add_action( 'wp_footer', array( $this, 'insert_codes_footer') );
-            add_action( 'wp_head', array( $this, 'insert_codes_head') );  
+            add_action( 'wp_head', array( $this, 'insert_codes_head') ); 
+            add_action( 'woocommerce_after_single_product', array( $this,'insert_codes_after_product'), 100 );
+            add_action( 'woocommerce_before_single_product', array( $this,'insert_codes_before_product'), 0 );
         }
 
         public function uc_load_languages() 
@@ -135,7 +136,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
                         $values = get_post_meta( get_the_ID(), 'uc_post_code_id');
 
-                        echo '<option value="0" >'.translate( 'All', 'unlimited-codes' ).'</option>';
+                        echo '<option value="0" ';
+                        
+                        if(in_array(0, $values[0]))
+                                 echo ' selected="selected" ';
+                        
+                        echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
 
                         foreach($posts as $post)
                         {
@@ -168,6 +174,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     <option 
                     <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "after_content")
                     { echo " selected='selected' "; } ?> value="after_content"><?php echo translate( 'After content', 'unlimited-codes' ) ?></option>
+                    <option 
+                    <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "before_product")
+                    { echo " selected='selected' "; } ?> value="before_product"><?php echo translate( 'Before product', 'unlimited-codes' ) ?></option>
+                    <option 
+                    <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "after_product")
+                    { echo " selected='selected' "; } ?> value="after_product"><?php echo translate( 'After product', 'unlimited-codes' ) ?></option>
                     <option 
                     <?php if(get_post_meta( get_the_ID(), 'location_code_page', true) == "footer")
                     { echo " selected='selected' "; } ?> value="footer"><?php echo translate( 'Footer', 'unlimited-codes' ) ?></option>
@@ -209,6 +221,17 @@ if ( ! class_exists( 'unlimited_codes' ) )
         {
             echo $this->unlimited_codes("head");
         }
+        
+        public function insert_codes_before_product()
+        {
+            echo $this->unlimited_codes("before_product");
+        }
+        
+        public function insert_codes_after_product()
+        {
+            echo $this->unlimited_codes("after_product");
+        }
+
 
         public function unlimited_codes($zone)
         {
