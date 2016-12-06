@@ -5,7 +5,7 @@ Description: Plugin that allows include diferent types of codes in your Wordpres
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 0.3
+Version: 0.4
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -14,18 +14,31 @@ if ( ! class_exists( 'unlimited_codes' ) )
 {
 	class unlimited_codes 
     {
+        public $codes = "";
+        
         function __construct() 
         {   
             add_action( 'init', array( $this, 'uc_load_languages') );
-            add_action( 'init', array( $this, 'init_unlimted_codes') );
-            add_action( 'admin_print_scripts', array( $this, 'unlimited_codes_admin_styles') );
-            add_action( 'add_meta_boxes', array( $this, 'unlimited_codes_metabox') ); 
+            add_action( 'init', array( $this, 'uc_init_taxonomy') );
+            add_action( 'admin_print_scripts', array( $this, 'uc_admin_js_css') );
+            add_action( 'add_meta_boxes', array( $this, 'uc_init_metabox') ); 
             add_action( 'save_post', array( $this, 'uc_save_data_codes') );
-            add_filter( 'the_content', array( $this, 'insert_codes_body') );
-            add_action( 'wp_footer', array( $this, 'insert_codes_footer') );
-            add_action( 'wp_head', array( $this, 'insert_codes_head') ); 
-            add_action( 'woocommerce_after_single_product', array( $this,'insert_codes_after_product'), 100 );
-            add_action( 'woocommerce_before_single_product', array( $this,'insert_codes_before_product'), 0 );
+            add_filter( 'the_content', array( $this, 'uc_load_body') );
+            add_action( 'wp_footer', array( $this, 'uc_load_footer') );
+            add_action( 'wp_head', array( $this, 'uc_load_head') ); 
+            add_action( 'woocommerce_after_single_product', array( $this,'uc_load_after_product'), 100 );
+            add_action( 'woocommerce_before_single_product', array( $this,'uc_load_before_product'), 0 );
+            
+            
+            $args = array(
+                        'sort_order' => 'asc',
+                        'sort_column' => 'post_title',
+                        'numberposts'      =>   -1,
+                        'post_type' => "code",
+                        'post_status' => 'publish'
+                     ); 
+
+            $this->codes = get_posts($args); 
         }
 
         public function uc_load_languages() 
@@ -33,7 +46,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
             load_plugin_textdomain( 'unlimited-codes', false, '/'.basename( dirname( __FILE__ ) ) . '/languages/' ); 
         }
 
-        public function init_unlimted_codes()
+        public function uc_init_taxonomy()
         {    
             $labels = array(
             'name' => translate( 'Codes', 'unlimited-codes' ),
@@ -65,7 +78,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
             register_post_type( 'code', $args );
         }
 
-        public function unlimited_codes_admin_styles() 
+        public function uc_admin_js_css() 
         {
             if(get_post_type(get_the_ID()) == "code")
             {
@@ -83,13 +96,13 @@ if ( ! class_exists( 'unlimited_codes' ) )
             }
         }
 
-        public function unlimited_codes_metabox()
+        public function uc_init_metabox()
         {
             add_meta_box( 'zone-code', translate( 'Code options', 'unlimited-codes' ), 
-                         array( $this, 'unlimited_codes_meta_options'), 'code', 'side', 'default' );
+                         array( $this, 'uc_meta_options'), 'code', 'side', 'default' );
         }
 
-        public function unlimited_codes_meta_options( $post )
+        public function uc_meta_options( $post )
         {
             global $wpdb;
 
@@ -119,7 +132,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 <p>
                     <label for="uc_post_code_id"><?php echo translate( 'Load into:', 'unlimited-codes' ) ?> </label>
                 </p>
-                <p><select  multiple="multiple" id="uc_post_code_id" name="uc_post_code_id[]">
+                <p>
+                   <select  multiple="multiple" id="uc_post_code_id" name="uc_post_code_id[]">
                     <?php
 
                     if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) != "")
@@ -201,47 +215,36 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 update_post_meta( $post_id, 'location_code_page', $_REQUEST['location_code_page'] );
         }
 
-        public function insert_codes_body($content) 
+        public function uc_load_body($content) 
         {
             return $this->unlimited_codes("before_content") . $content . $this->unlimited_codes("after_content");
         } 
 
-        public function insert_codes_footer() 
+        public function uc_load_footer() 
         {
             echo do_shortcode($this->unlimited_codes("footer"));
         }
 
-        public function insert_codes_head() 
+        public function uc_load_head() 
         {
             echo $this->unlimited_codes("head");
         }
         
-        public function insert_codes_before_product()
+        public function uc_load_before_product()
         {
             echo do_shortcode($this->unlimited_codes("before_content"));
         }
         
-        public function insert_codes_after_product()
+        public function uc_load_after_product()
         {
             echo do_shortcode($this->unlimited_codes("after_content"));
         }
-
 
         public function unlimited_codes($zone)
         {
             $result = "";
 
-            $args = array(
-                        'sort_order' => 'asc',
-                        'sort_column' => 'post_title',
-                        'numberposts'      =>   -1,
-                        'post_type' => "code",
-                        'post_status' => 'publish'
-                     ); 
-
-            $codes = get_posts($args); 
-
-            foreach($codes as $code)
+            foreach($this->codes as $code)
             {
                 $post_type = get_post_meta( $code->ID, 'uc_post_type_id',  true );
                 $post_id = get_post_meta( $code->ID, 'uc_post_code_id');
