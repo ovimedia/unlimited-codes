@@ -15,8 +15,8 @@ jQuery(document).ready(function($)
 
         request.done(function( msg ) 
         {	
-            jQuery("#uc_post_code_id").children('option:not(:first)').remove();
-            jQuery("#uc_post_code_id").append(msg);
+            jQuery("#uc_post_code_id, #uc_exclude_post_code_id").children('option:not(:first)').remove();
+            jQuery("#uc_post_code_id, #uc_exclude_post_code_id").append(msg);
         });
     }
 
