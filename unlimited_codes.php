@@ -5,7 +5,7 @@ Description: Plugin that allows include diferent types of codes in your Wordpres
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 0.5
+Version: 0.6
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -28,6 +28,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_action( 'wp_head', array( $this, 'uc_load_head') ); 
             add_action( 'woocommerce_after_single_product', array( $this,'uc_load_after_product'), 100 );
             add_action( 'woocommerce_before_single_product', array( $this,'uc_load_before_product'), 0 );
+            
+            add_filter( 'plugin_action_links_'.plugin_basename( plugin_dir_path( __FILE__ ) . 'unlimited_codes.php'), array( $this, 'uc_plugin_settings_link' ) );
             
             $args = array(
                 'sort_order' => 'asc',
@@ -85,7 +87,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
                 wp_enqueue_style( 'custom_codes_admin_css' );
 
-                wp_register_style( 'codes_select2_css', WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/css/select2.css', false, '1.0.0' );
+                wp_register_style( 'codes_select2_css', WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/css/select2.min.css', false, '1.0.0' );
 
                 wp_enqueue_style( 'codes_select2_css' );
 
@@ -106,130 +108,131 @@ if ( ! class_exists( 'unlimited_codes' ) )
             global $wpdb;
 
             ?>
-    <div class="meta_div_codes">
-        <p>
-            <label for="uc_post_type_id">
-                <?php echo translate( 'Post type:', 'unlimited-codes' ) ?>
-            </label>
-        </p>
-        <p>
-            <select id="uc_post_type_id" name="uc_post_type_id">
-                <option value="all">
-                    <?php echo translate( 'All types', 'unlimited-codes' ) ?>
-                </option>
-                <?php
+            <div class="meta_div_codes">
+                <p>
+                    <label for="uc_post_type_id">
+                        <?php echo translate( 'Post type:', 'unlimited-codes' ) ?>
+                    </label>
+                </p>
+                <p>
+                    <select id="uc_post_type_id" name="uc_post_type_id">
+                        <option value="all">
+                            <?php echo translate( 'All types', 'unlimited-codes' ) ?>
+                        </option>
+                        <?php
 
-                    $results = $wpdb->get_results( 'SELECT DISTINCT post_type FROM '.$wpdb->prefix.'posts WHERE post_status like "publish" order by 1 asc'  );
+                            $results = $wpdb->get_results( 'SELECT DISTINCT post_type FROM '.$wpdb->prefix.'posts WHERE post_status like "publish" and post_type <> "code" and post_type <> "nav_menu_item" and post_type <> "wpcf7_contact_form" order by 1 asc'  );
 
-                    foreach ( $results as $row )
-                    {
-                        echo '<option ';
+                            foreach ( $results as $row )
+                            {
+                                echo '<option ';
 
-                        if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) == $row->post_type)
-                            echo ' selected="selected" ';
+                                if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) == $row->post_type)
+                                    echo ' selected="selected" ';
 
-                        echo ' value="'.$row->post_type.'">'.ucfirst ($row->post_type).'</option>';
-                    } 
+                                echo ' value="'.$row->post_type.'">'.ucfirst ($row->post_type).'</option>';
+                            } 
 
-                ?>
-            </select>
-        </p>
-        <p>
-            <label for="uc_post_code_id">
-                <?php echo translate( 'Load into:', 'unlimited-codes' ) ?>
-            </label>
-        </p>
-        <p>
-            <select multiple="multiple" id="uc_post_code_id" name="uc_post_code_id[]">
-                <?php
+                        ?>
+                    </select>
+                </p>
+                <p>
+                    <label for="uc_post_code_id">
+                        <?php echo translate( 'Load into:', 'unlimited-codes' ) ?>
+                    </label>
+                </p>
+                <p>
+                    <select multiple="multiple" id="uc_post_code_id" name="uc_post_code_id[]">
+                        <?php
 
-                    if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) != "")
-                    {
-                        $args = array(
-                            'sort_order' => 'asc',
-                            'sort_column' => 'post_title',
-                            'numberposts'      =>   -1,
-                            'post_type' => get_post_meta( get_the_ID(), 'uc_post_type_id', true),
-                            'post_status' => 'publish'
-                         ); 
+                            if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) != "")
+                            {
+                                $args = array(
+                                    'sort_order' => 'asc',
+                                    'sort_column' => 'post_title',
+                                    'numberposts'      =>   -1,
+                                    'post_type' => get_post_meta( get_the_ID(), 'uc_post_type_id', true),
+                                    'post_status' => 'publish'
+                                 ); 
 
-                        $posts = get_posts($args); 
+                                $posts = get_posts($args); 
 
-                        $values = get_post_meta( get_the_ID(), 'uc_post_code_id');
+                                $values = get_post_meta( get_the_ID(), 'uc_post_code_id');
 
-                        echo '<option value="0" ';
-                        
-                        if(in_array(0, $values[0]))
-                                 echo ' selected="selected" ';
-                        
-                        echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
+                                echo '<option value="0" ';
 
-                        foreach($posts as $post)
-                        {
-                            echo '<option ';
+                                if(in_array(0, $values[0]))
+                                         echo ' selected="selected" ';
 
-                             if(in_array($post->ID, $values[0]))
-                                 echo ' selected="selected" ';
+                                echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
 
-                            echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
-                        } 
-                     }
-                    else
-                        echo '<option selected="selected" value="0" >'.translate( 'All', 'unlimited-codes' ).'</option>';
+                                foreach($posts as $post)
+                                {
+                                    echo '<option ';
 
-                    ?>
-            </select>
-        </p>
-        <p>
-            <label for="uc_exclude_post_code_id">
-                <?php echo translate( 'Exclude:', 'unlimited-codes' ) ?>
-            </label>
-        </p>
-        <p>
-            <select multiple="multiple" id="uc_exclude_post_code_id" name="uc_exclude_post_code_id[]">
-                <?php
+                                     if(in_array($post->ID, $values[0]))
+                                         echo ' selected="selected" ';
 
-                    if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) != "")
-                    {
-                        $values = get_post_meta( get_the_ID(), 'uc_exclude_post_code_id');
+                                    echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
+                                } 
+                             }
+                            else
+                                echo '<option selected="selected" value="0" >'.translate( 'All', 'unlimited-codes' ).'</option>';
 
-                        foreach($posts as $post)
-                        {
-                            echo '<option ';
+                            ?>
+                    </select>
+                </p>
+                <p>
+                    <label for="uc_exclude_post_code_id">
+                        <?php echo translate( 'Exclude:', 'unlimited-codes' ) ?>
+                    </label>
+                </p>
+                <p>
+                    <select multiple="multiple" id="uc_exclude_post_code_id" name="uc_exclude_post_code_id[]">
+                        <?php
 
-                             if(in_array($post->ID, $values[0]))
-                                 echo ' selected="selected" ';
+                            if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) != "")
+                            {
+                                $values = get_post_meta( get_the_ID(), 'uc_exclude_post_code_id');
 
-                            echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
-                        } 
-                     }
+                                foreach($posts as $post)
+                                {
+                                    echo '<option ';
 
-                    ?>
-            </select>
-        </p>
-        <p>
-            <label for="location_code_page">
-                <?php echo translate( 'Post zone:', 'unlimited-codes' ) ?>
-            </label>
-        </p>
-        <p>
-            <select id="location_code_page" name="location_code_page">
-                <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="head" ) { echo " selected='selected' "; } ?> value="head">
-                    <?php echo translate( 'Head', 'unlimited-codes' ) ?>
-                </option>
-                <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="before_content" ) { echo " selected='selected' "; } ?> value="before_content">
-                    <?php echo translate( 'Before content', 'unlimited-codes' ) ?>
-                </option>
-                <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="after_content" ) { echo " selected='selected' "; } ?> value="after_content">
-                    <?php echo translate( 'After content', 'unlimited-codes' ) ?>
-                </option>
-                <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="footer" ) { echo " selected='selected' "; } ?> value="footer">
-                    <?php echo translate( 'Footer', 'unlimited-codes' ) ?>
-                </option>
-            </select>
-        </p>
-        <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />
-        <input type="hidden" id="post_id" value="<?php echo get_the_ID(); ?>" /> </div>
+                                     if(in_array($post->ID, $values[0]))
+                                         echo ' selected="selected" ';
+
+                                    echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
+                                } 
+                             }
+
+                            ?>
+                    </select>
+                </p>
+                <p>
+                    <label for="location_code_page">
+                        <?php echo translate( 'Post zone:', 'unlimited-codes' ) ?>
+                    </label>
+                </p>
+                <p>
+                    <select id="location_code_page" name="location_code_page">
+                        <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="head" ) { echo " selected='selected' "; } ?> value="head">
+                            <?php echo translate( 'Head', 'unlimited-codes' ) ?>
+                        </option>
+                        <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="before_content" ) { echo " selected='selected' "; } ?> value="before_content">
+                            <?php echo translate( 'Before content', 'unlimited-codes' ) ?>
+                        </option>
+                        <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="after_content" ) { echo " selected='selected' "; } ?> value="after_content">
+                            <?php echo translate( 'After content', 'unlimited-codes' ) ?>
+                        </option>
+                        <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="footer" ) { echo " selected='selected' "; } ?> value="footer">
+                            <?php echo translate( 'Footer', 'unlimited-codes' ) ?>
+                        </option>
+                    </select>
+                </p>
+                <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />
+                <input type="hidden" id="post_id" value="<?php echo get_the_ID(); ?>" /> 
+            </div>
     <?php 
         }
 
@@ -295,6 +298,13 @@ if ( ! class_exists( 'unlimited_codes' ) )
             }	
 
             return stripslashes($result);
+        }
+        
+        public function uc_plugin_settings_link( $links ) 
+        { 
+            $settings_link = '<a href="'.get_home_url().'/wp-admin/edit.php?post_type=code">'.translate( 'Codes', 'unlimited-codes' ).'</a>';
+            array_unshift( $links, $settings_link ); 
+            return $links; 
         }
     }
 }
