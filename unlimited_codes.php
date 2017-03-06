@@ -85,7 +85,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
                 wp_enqueue_style( 'custom_codes_admin_css' );
 
-                wp_register_style( 'codes_select2_css', WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/css/select2.css', false, '1.0.0' );
+                wp_register_style( 'codes_select2_css', WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/css/select2.min.css', false, '1.0.0' );
 
                 wp_enqueue_style( 'codes_select2_css' );
 
