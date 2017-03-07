@@ -5,7 +5,7 @@ Description: Plugin that allows include diferent types of codes in your Wordpres
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 0.6
+Version: 0.7
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -32,11 +32,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_filter( 'plugin_action_links_'.plugin_basename( plugin_dir_path( __FILE__ ) . 'unlimited_codes.php'), array( $this, 'uc_plugin_settings_link' ) );
             
             $args = array(
-                'sort_order' => 'asc',
-                'sort_column' => 'post_title',
-                'numberposts'      =>   -1,
+                'numberposts' =>   -1,
                 'post_type' => "code",
-                'post_status' => 'publish'
+                'post_status' => 'publish',
+                'meta_key'   => 'uc_order_code',
+                'orderby'    => 'meta_value_num',
+                'order'      => 'ASC'
             ); 
 
             $this->codes = get_posts($args); 
@@ -184,7 +185,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 </p>
                 <p>
                     <label for="uc_exclude_post_code_id">
-                        <?php echo translate( 'Exclude:', 'unlimited-codes' ) ?>
+                        <?php echo translate( 'Exclude in:', 'unlimited-codes' ) ?>
                     </label>
                 </p>
                 <p>
@@ -210,47 +211,53 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     </select>
                 </p>
                 <p>
-                    <label for="location_code_page">
+                    <label for="uc_location_code_page">
                         <?php echo translate( 'Post zone:', 'unlimited-codes' ) ?>
                     </label>
                 </p>
                 <p>
-                    <select id="location_code_page" name="location_code_page">
-                        <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="head" ) { echo " selected='selected' "; } ?> value="head">
+                    <select id="uc_location_code_page" name="uc_location_code_page">
+                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="head" ) { echo " selected='selected' "; } ?> value="head">
                             <?php echo translate( 'Head', 'unlimited-codes' ) ?>
                         </option>
-                        <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="before_content" ) { echo " selected='selected' "; } ?> value="before_content">
+                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="before_content" ) { echo " selected='selected' "; } ?> value="before_content">
                             <?php echo translate( 'Before content', 'unlimited-codes' ) ?>
                         </option>
-                        <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="after_content" ) { echo " selected='selected' "; } ?> value="after_content">
+                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="after_content" ) { echo " selected='selected' "; } ?> value="after_content">
                             <?php echo translate( 'After content', 'unlimited-codes' ) ?>
                         </option>
-                        <option <?php if(get_post_meta( get_the_ID(), 'location_code_page', true)=="footer" ) { echo " selected='selected' "; } ?> value="footer">
+                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="footer" ) { echo " selected='selected' "; } ?> value="footer">
                             <?php echo translate( 'Footer', 'unlimited-codes' ) ?>
                         </option>
                     </select>
                 </p>
+                <p>
+                    <label for="uc_order_code">
+                        <?php echo translate( 'Order:', 'unlimited-codes' ) ?>
+                    </label>
+                </p>
+                <p>
+                    <input type="number" value="<?php if(get_post_meta( get_the_ID(), 'uc_order_code', true) == "") echo "0"; else echo get_post_meta( get_the_ID(), 'uc_order_code', true) ; ?>" placeholder="<?php echo translate( 'Order:', 'unlimited-codes' ) ?>" name="uc_order_code" id="uc_order_code" />
+                </p>
                 <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />
                 <input type="hidden" id="post_id" value="<?php echo get_the_ID(); ?>" /> 
             </div>
-    <?php 
+        <?php 
         }
 
         public function uc_save_data_codes( $post_id )
         {
             if ( "code" != get_post_type($post_id)) return;
 
-            if( isset( $_REQUEST['uc_post_type_id'] ) )
-                update_post_meta( $post_id, 'uc_post_type_id',  $_REQUEST['uc_post_type_id'] );
+            update_post_meta( $post_id, 'uc_post_type_id',  $_REQUEST['uc_post_type_id'] );
 
-            if( isset( $_REQUEST['uc_post_code_id'] ) )
-                update_post_meta( $post_id, 'uc_post_code_id', $_REQUEST['uc_post_code_id'] );
+            update_post_meta( $post_id, 'uc_post_code_id', $_REQUEST['uc_post_code_id'] );
             
-            if( isset( $_REQUEST['uc_exclude_post_code_id'] ) )
-                update_post_meta( $post_id, 'uc_exclude_post_code_id', $_REQUEST['uc_exclude_post_code_id'] );
+            update_post_meta( $post_id, 'uc_exclude_post_code_id', $_REQUEST['uc_exclude_post_code_id'] );
 
-            if( isset( $_REQUEST['location_code_page'] ) )
-                update_post_meta( $post_id, 'location_code_page', $_REQUEST['location_code_page'] );
+            update_post_meta( $post_id, 'uc_location_code_page', $_REQUEST['uc_location_code_page'] );
+            
+            update_post_meta( $post_id, 'uc_order_code', $_REQUEST['uc_order_code'] );
         }
 
         public function uc_load_body($content) 
@@ -287,10 +294,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 $post_type = get_post_meta( $code->ID, 'uc_post_type_id',  true );
                 $post_id = get_post_meta( $code->ID, 'uc_post_code_id');
                 $exclude_post_id = get_post_meta( $code->ID, 'uc_exclude_post_code_id'); 
-                $post_location = get_post_meta( $code->ID, 'location_code_page', true );
+                $post_location = get_post_meta( $code->ID, 'uc_location_code_page', true );
                 
-             
-
                 if($post_type == "all" || $post_type == get_post_type(get_the_id()))
                     if( $post_location == $zone)
                         if(in_array(get_the_id(), $post_id[0]) || in_array(0, $post_id[0]) && !in_array(get_the_id(), $exclude_post_id[0] ))
