@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Unlimited Codes 
-Description: Plugin that allows include diferent types of codes in your Wordpress.
+Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 0.7
+Version: 0.8
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -23,12 +23,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_action( 'admin_print_scripts', array( $this, 'uc_admin_js_css') );
             add_action( 'add_meta_boxes', array( $this, 'uc_init_metabox') ); 
             add_action( 'save_post', array( $this, 'uc_save_data_codes') );
-            add_filter( 'the_content', array( $this, 'uc_load_body') );
             add_action( 'wp_footer', array( $this, 'uc_load_footer') );
             add_action( 'wp_head', array( $this, 'uc_load_head') ); 
             add_action( 'woocommerce_after_single_product', array( $this,'uc_load_after_product'), 100 );
             add_action( 'woocommerce_before_single_product', array( $this,'uc_load_before_product'), 0 );
             
+            add_filter( 'the_content', array( $this, 'uc_load_body') );
             add_filter( 'plugin_action_links_'.plugin_basename( plugin_dir_path( __FILE__ ) . 'unlimited_codes.php'), array( $this, 'uc_plugin_settings_link' ) );
             
             $args = array(
@@ -163,7 +163,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                                 echo '<option value="0" ';
 
                                 if(in_array(0, $values[0]))
-                                         echo ' selected="selected" ';
+                                    echo ' selected="selected" ';
 
                                 echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
 
@@ -239,8 +239,55 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 <p>
                     <input type="number" value="<?php if(get_post_meta( get_the_ID(), 'uc_order_code', true) == "") echo "0"; else echo get_post_meta( get_the_ID(), 'uc_order_code', true) ; ?>" placeholder="<?php echo translate( 'Order:', 'unlimited-codes' ) ?>" name="uc_order_code" id="uc_order_code" />
                 </p>
+                
+                
+                <?php
+                                
+                    if ( function_exists('icl_object_id') ) 
+                    {
+                       ?>
+                     <p>
+                        <label for="uc_wpml_languages_load">
+                            <?php echo translate( 'Apply in following languages:', 'unlimited-codes' ) ?>
+                        </label>
+                    </p>
+                    <p>
+                        <select multiple="multiple" id="uc_wpml_languages_load" name="uc_wpml_languages_load[]">
+                            <?php
+
+                                $languages = apply_filters( 'wpml_active_languages', NULL, 'orderby=translated_name&order=desc' );
+
+                                if ( !empty( $languages ) ) 
+                                {
+                                    $values = get_post_meta( get_the_ID(), 'uc_wpml_languages_load');
+
+                                    echo '<option value="all" ';
+
+                                    if(in_array("all", $values[0]) || empty($values[0]))
+                                        echo ' selected="selected" ';
+
+                                    echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
+
+                                    foreach( $languages as $language ) 
+                                    {
+                                        echo '<option ';
+
+                                         if(in_array($language["code"], $values[0]))
+                                             echo ' selected="selected" ';
+
+                                        echo ' value="'.$language["code"].'">'.$language["translated_name"].'</option>';
+                                    }
+                                }
+
+                                ?>
+                        </select>
+                    </p>
+                
+                <?php } ?>
+                
                 <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />
                 <input type="hidden" id="post_id" value="<?php echo get_the_ID(); ?>" /> 
+                
             </div>
         <?php 
         }
@@ -257,7 +304,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
             update_post_meta( $post_id, 'uc_location_code_page', $_REQUEST['uc_location_code_page'] );
             
-            update_post_meta( $post_id, 'uc_order_code', $_REQUEST['uc_order_code'] );
+            if(is_int($_REQUEST['uc_order_code'] * 1))
+                update_post_meta( $post_id, 'uc_order_code', $_REQUEST['uc_order_code'] );
+            else
+                update_post_meta( $post_id, 'uc_order_code', 0 );
+            
+            update_post_meta( $post_id, 'uc_wpml_languages_load', $_REQUEST['uc_wpml_languages_load'] );
         }
 
         public function uc_load_body($content) 
@@ -296,13 +348,29 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 $exclude_post_id = get_post_meta( $code->ID, 'uc_exclude_post_code_id'); 
                 $post_location = get_post_meta( $code->ID, 'uc_location_code_page', true );
                 
-                if($post_type == "all" || $post_type == get_post_type(get_the_id()))
-                    if( $post_location == $zone)
-                        if(in_array(get_the_id(), $post_id[0]) || in_array(0, $post_id[0]) && !in_array(get_the_id(), $exclude_post_id[0] ))
-                            $result .= $code->post_content;
+                if($this->check_wpml_languages($code->ID))
+                    if($post_type == "all" || $post_type == get_post_type(get_the_id()))
+                        if( $post_location == $zone)
+                            if(in_array(get_the_id(), $post_id[0]) || in_array(0, $post_id[0]) && !in_array(get_the_id(), $exclude_post_id[0] ))
+                                $result .= $code->post_content;
             }	
 
             return stripslashes($result);
+        }
+        
+        public function check_wpml_languages($code_id)
+        {
+            if ( function_exists('icl_object_id') )  
+            {
+                $wpml_languages = get_post_meta( $code_id, 'uc_wpml_languages_load' );
+                
+                if(in_array("all", $wpml_languages[0]) || in_array(ICL_LANGUAGE_CODE, $wpml_languages[0]) )
+                    return true;
+                else
+                    return false;
+            }
+            
+            return true; 
         }
         
         public function uc_plugin_settings_link( $links ) 

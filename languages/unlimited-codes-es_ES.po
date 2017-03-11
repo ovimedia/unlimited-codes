@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2017-03-07 23:09+0100\n"
+"PO-Revision-Date: 2017-03-11 20:20+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -123,3 +123,8 @@ msgstr "Excluir en:"
 #: unlimited_codes.php:239
 msgid "Order:"
 msgstr "Orden:"
+
+# @ su
+#: unlimited_codes.php:239
+msgid "Apply in following languages:"
+msgstr "Aplicar en los siguientes idiomas:"

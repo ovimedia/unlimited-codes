@@ -5,3 +5,5 @@
 .meta_div_codes p label{font-weight: bold;}
 
 .meta_div_codes p select{margin: 3px 0px 15px 0px;} 
+
+.select2-selection--multiple .select2-search {width: 0px !important;}
