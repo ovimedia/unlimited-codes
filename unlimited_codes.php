@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 0.8
+Version: 1.0
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -23,7 +23,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_action( 'admin_print_scripts', array( $this, 'uc_admin_js_css') );
             add_action( 'add_meta_boxes', array( $this, 'uc_init_metabox') ); 
             add_action( 'save_post', array( $this, 'uc_save_data_codes') );
-            add_action( 'wp_footer', array( $this, 'uc_load_footer') );
+            add_action( 'wp_footer', array( $this, 'uc_load_footer'), 200 );
             add_action( 'wp_head', array( $this, 'uc_load_head') ); 
             add_action( 'woocommerce_after_single_product', array( $this,'uc_load_after_product'), 100 );
             add_action( 'woocommerce_before_single_product', array( $this,'uc_load_before_product'), 0 );
@@ -149,9 +149,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
                             if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) != "")
                             {
                                 $args = array(
-                                    'sort_order' => 'asc',
-                                    'sort_column' => 'post_title',
-                                    'numberposts'      =>   -1,
+                                    'orderby' => 'title',
+                                    'order' => 'asc',
+                                    'numberposts' => -1,
                                     'post_type' => get_post_meta( get_the_ID(), 'uc_post_type_id', true),
                                     'post_status' => 'publish'
                                  ); 
@@ -212,7 +212,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 </p>
                 <p>
                     <label for="uc_location_code_page">
-                        <?php echo translate( 'Post zone:', 'unlimited-codes' ) ?>
+                        <?php echo translate( 'Page location:', 'unlimited-codes' ) ?>
                     </label>
                 </p>
                 <p>

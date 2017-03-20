@@ -8,9 +8,9 @@ if(isset($_REQUEST["post_type"]))
      require_once '../../../wp-includes/post.php';
  
 	$args = array(
-		'sort_order' => 'asc',
-		'sort_column' => 'post_title',
-        'numberposts'      =>   -1,
+        'orderby' => 'title',
+        'order' => 'asc',
+        'numberposts' => -1,
 		'post_type' => $_REQUEST["post_type"],
 		'post_status' => 'publish'
 	); 

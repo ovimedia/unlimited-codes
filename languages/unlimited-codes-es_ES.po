@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2017-03-11 20:20+0100\n"
+"PO-Revision-Date: 2017-03-20 23:24+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -86,13 +86,8 @@ msgstr "Todos"
 
 # @ su
 #: unlimited_codes.php:133
-msgid "Post zone:"
-msgstr "Zona de la publicación:"
-
-# @ su
-#: unlimited_codes.php:135
-msgid "Load code into"
-msgstr "Cargar código en"
+msgid "Page location:"
+msgstr "Ubicación de la página:"
 
 # @ su
 #: unlimited_codes.php:138
