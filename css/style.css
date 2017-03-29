@@ -1,4 +1,4 @@
-.meta_div_codes, .meta_div_codes select, .meta_div_codes p, .meta_div_codes input[type="number"]{width: 100%;}
+.meta_div_codes, .meta_div_codes select, .meta_div_codes p, .meta_div_codes input[type="number"], .meta_div_codes input[type="text"]{width: 100%;}
 
 .meta_div_codes p{margin-bottom: 8px;margin-top: 8px;}
 

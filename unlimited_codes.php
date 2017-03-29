@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.0
+Version: 1.1
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -31,6 +31,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_filter( 'the_content', array( $this, 'uc_load_body') );
             add_filter( 'plugin_action_links_'.plugin_basename( plugin_dir_path( __FILE__ ) . 'unlimited_codes.php'), array( $this, 'uc_plugin_settings_link' ) );
             
+            add_shortcode( 'uc_shortcode_code', array( $this, 'uc_load_shortcode'));
+            
             $args = array(
                 'numberposts' =>   -1,
                 'post_type' => "code",
@@ -42,7 +44,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
             $this->codes = get_posts($args); 
         }
-
+        
         public function uc_load_languages() 
         {
             load_plugin_textdomain( 'unlimited-codes', false, '/'.basename( dirname( __FILE__ ) ) . '/languages/' ); 
@@ -79,6 +81,13 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
             register_post_type( 'code', $args );
         }
+        
+        public function uc_load_shortcode( $atts ) 
+        {
+            $code = get_post($atts['id']); 
+            
+            return do_shortcode($code->post_content);
+        }
 
         public function uc_admin_js_css() 
         {
@@ -109,7 +118,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
             global $wpdb;
 
             ?>
-            <div class="meta_div_codes">
+            <div class="meta_div_codes">         
                 <p>
                     <label for="uc_post_type_id">
                         <?php echo translate( 'Post type:', 'unlimited-codes' ) ?>
@@ -284,6 +293,15 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     </p>
                 
                 <?php } ?>
+                        
+                 <p>
+                    <label for="uc_shortcode_code">
+                        <?php echo translate( 'Shortcode code:', 'unlimited-codes' ) ?>
+                    </label>
+                </p>
+                <p>
+                   <input type="text" readonly value='<?php echo "[".get_post_meta( get_the_ID(), 'uc_shortcode_code', true)."]"; ?>' id="uc_shortcode_code" name="uc_shortcode_code" />
+                </p>
                 
                 <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />
                 <input type="hidden" id="post_id" value="<?php echo get_the_ID(); ?>" /> 
@@ -310,6 +328,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 update_post_meta( $post_id, 'uc_order_code', 0 );
             
             update_post_meta( $post_id, 'uc_wpml_languages_load', $_REQUEST['uc_wpml_languages_load'] );
+            
+            update_post_meta( $post_id, 'uc_shortcode_code', 'uc_shortcode_code id="'.$post_id.'"');  
         }
 
         public function uc_load_body($content) 

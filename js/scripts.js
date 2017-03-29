@@ -19,6 +19,19 @@ jQuery(document).ready(function($)
             jQuery("#uc_post_code_id, #uc_exclude_post_code_id").append(msg);
         });
     }
+    
+    
+    jQuery('#content-tmce').click(function() {
+
+        jQuery('.CodeMirror').css("display", "none");
+    }); 
+
+    jQuery('#content-html').click(function() {
+
+        jQuery('.CodeMirror').css("display", "block");
+
+    }); 
+
 
     $('#zone-code select').select2({tags: true});
 }); 
