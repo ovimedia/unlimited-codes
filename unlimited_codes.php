@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.1
+Version: 1.2
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -31,6 +31,11 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_filter( 'the_content', array( $this, 'uc_load_body') );
             add_filter( 'plugin_action_links_'.plugin_basename( plugin_dir_path( __FILE__ ) . 'unlimited_codes.php'), array( $this, 'uc_plugin_settings_link' ) );
             
+                    
+            add_filter( 'manage_edit-code_columns', array( $this, 'uc_edit_code_columns' )) ;
+            add_action( 'manage_code_posts_custom_column', array( $this, 'uc_manage_code_columns'), 10, 2 );
+            
+
             add_shortcode( 'uc_shortcode_code', array( $this, 'uc_load_shortcode'));
             
             $args = array(
@@ -54,7 +59,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
         {    
             $labels = array(
                 'name' => translate( 'Codes', 'unlimited-codes' ),
-                'singular_name' => translate( 'Codes', 'unlimited-codes' ),
+                'singular_name' => translate( 'Code', 'unlimited-codes' ),
                 'add_new' =>  translate( 'Add code', 'unlimited-codes' ),
                 'add_new_item' => translate( 'Add new code', 'unlimited-codes' ),
                 'edit_item' => translate( 'Edit codes', 'unlimited-codes' ),
@@ -81,12 +86,117 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
             register_post_type( 'code', $args );
         }
+
+
+        public function uc_edit_code_columns( $columns ) {
+
+            $columns = array(
+                'cb' => '<input type="checkbox" />',
+                'title' => translate( 'Code', 'unlimited-codes' ),
+                'postype' => translate( 'Post type:', 'unlimited-codes' ),
+                'loadinto' => translate( 'Load into:', 'unlimited-codes' ),
+                'excludein' => translate( 'Exclude in:', 'unlimited-codes' ),
+                'pagelocation' =>  translate( 'Page location:', 'unlimited-codes' ),
+                'order' =>  translate( 'Order:', 'unlimited-codes' ),
+                'shortcode' => translate( 'Shortcode', 'unlimited-codes' ),
+                'date' => __( 'Date' )
+            );
+            
+            return $columns;
+
+        }
+        
+        public function uc_manage_code_columns( $column, $post_id ) 
+        {
+            switch( $column ) 
+            {
+                          
+                    
+                case 'postype':
+
+                    echo translate( ucfirst( get_post_meta( $post_id, 'uc_post_type_id', true)), 'unlimited-codes' ) ; 
+
+                break;    
+                    
+                case 'loadinto':
+                    
+                    $values = get_post_meta( $post_id, 'uc_post_code_id');
+                    
+                    $column_values = "";
+                    
+                    foreach ($values as $value)
+                    {
+                        $post = get_post($value[0]);
+                        
+                        if($post->ID == $post_id)
+                            $column_values .= translate( 'All', 'unlimited-codes' ).", ";
+                        else  
+                            $column_values .= translate( ucfirst(  $post->post_title ), 'unlimited-codes' ).", ";
+                    }
+
+                    echo substr($column_values, 0, -2); 
+  
+
+                break;    
+                    
+                case 'excludein':
+                    
+                    $values = get_post_meta( $post_id, 'uc_exclude_post_code_id');
+                    
+                    $column_values = "";
+                    
+                    foreach ($values as $value)
+                    {
+                        $post = get_post($value[0]);
+                        
+                        if($post->ID == $post_id)
+                            $column_values .= "-, ";
+                        else  
+                            $column_values .= translate( ucfirst(  $post->post_title ), 'unlimited-codes' ).", ";
+                    }
+
+                    echo substr($column_values, 0, -2); 
+  
+
+                break; 
+                      
+                case 'pagelocation':
+
+                    echo translate( ucfirst(str_replace("_", " ", get_post_meta( $post_id, 'uc_location_code_page', true))), 'unlimited-codes' ) ;
+
+                break;
+                    
+                case 'shortcode':
+
+                    echo '[uc_shortcode_code id="'.$post_id.'"]';
+
+                    break;
+                    
+                case 'order':
+
+                    echo get_post_meta( $post_id, 'uc_order_code', true) ;
+
+                    break;    
+                    
+
+                default :
+                    break;
+            }
+        }
         
         public function uc_load_shortcode( $atts ) 
         {
             $code = get_post($atts['id']); 
             
-            return do_shortcode($code->post_content);
+            return do_shortcode($this->uc_check_shortcode($code->post_content, $atts['id']));
+        }
+           
+        public function uc_check_shortcode($code, $id)
+        {
+            if(strpos($code, '[uc_shortcode_code id="'.$id.'"]') > 0)
+                return translate( 'Can not load code shortcode inside it.', 'unlimited-codes' );
+                
+            return $code;
         }
 
         public function uc_admin_js_css() 
@@ -300,7 +410,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     </label>
                 </p>
                 <p>
-                   <input type="text" readonly value='<?php echo "[".get_post_meta( get_the_ID(), 'uc_shortcode_code', true)."]"; ?>' id="uc_shortcode_code" name="uc_shortcode_code" />
+                   <input type="text" readonly value='<?php echo '[uc_shortcode_code id="'.get_the_ID().'"]'; ?>' id="uc_shortcode_code" name="uc_shortcode_code" />
                 </p>
                 
                 <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />
@@ -322,14 +432,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
             update_post_meta( $post_id, 'uc_location_code_page', $_REQUEST['uc_location_code_page'] );
             
-            if(is_int($_REQUEST['uc_order_code'] * 1))
-                update_post_meta( $post_id, 'uc_order_code', $_REQUEST['uc_order_code'] );
-            else
-                update_post_meta( $post_id, 'uc_order_code', 0 );
+            update_post_meta( $post_id, 'uc_order_code', $_REQUEST['uc_order_code'] );
             
             update_post_meta( $post_id, 'uc_wpml_languages_load', $_REQUEST['uc_wpml_languages_load'] );
-            
-            update_post_meta( $post_id, 'uc_shortcode_code', 'uc_shortcode_code id="'.$post_id.'"');  
         }
 
         public function uc_load_body($content) 
@@ -375,7 +480,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                                 $result .= $code->post_content;
             }	
 
-            return stripslashes($result);
+            return $this->uc_check_shortcode($result, $code->ID);
         }
         
         public function check_wpml_languages($code_id)

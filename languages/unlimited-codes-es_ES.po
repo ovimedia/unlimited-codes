@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2017-03-29 23:35+0200\n"
+"PO-Revision-Date: 2017-04-03 22:44+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -18,6 +18,11 @@ msgstr ""
 #: unlimited_codes.php:15
 msgid "Codes"
 msgstr "Códigos"
+
+# @ su
+#: unlimited_codes.php:15
+msgid "Code"
+msgstr "Código"
 
 # @ su
 #: unlimited_codes.php:17
@@ -115,16 +120,36 @@ msgid "Exclude in:"
 msgstr "Excluir en:"
 
 # @ su
-#: unlimited_codes.php:239
+#: unlimited_codes.php
 msgid "Order:"
 msgstr "Orden:"
 
 # @ su
-#: unlimited_codes.php:239
+#: unlimited_codes.php
 msgid "Apply in following languages:"
 msgstr "Aplicar en los siguientes idiomas:"
 
 # @ su
-#: unlimited_codes.php:239
+#: unlimited_codes.php
 msgid "Shortcode code:"
 msgstr "Shortcode del código:"
+
+# @ su
+#: unlimited_codes.php
+msgid "Can not load code shortcode inside it."
+msgstr "No se puede cargar el shortcode del código dentro de si mismo."
+
+# @ su
+#: unlimited_codes.php
+msgid "Page"
+msgstr "Página"
+
+# @ su
+#: unlimited_codes.php
+msgid "Post"
+msgstr "Entrada"
+
+# @ su
+#: unlimited_codes.php
+msgid "Product"
+msgstr "Producto"
