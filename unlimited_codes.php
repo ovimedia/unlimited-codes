@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.2
+Version: 1.3
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -36,7 +36,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_action( 'manage_code_posts_custom_column', array( $this, 'uc_manage_code_columns'), 10, 2 );
             
 
-            add_shortcode( 'uc_shortcode_code', array( $this, 'uc_load_shortcode'));
+            add_shortcode( 'uc_shortcode', array( $this, 'uc_load_shortcode'));
             
             $args = array(
                 'numberposts' =>   -1,
@@ -81,7 +81,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 'hierarchical' => false,
                 'menu_position' => 50,
                 'menu_icon' => 'dashicons-editor-code',
-                'supports' => array( 'title', 'editor')
+                'supports' => array( 'title', 'editor', 'revisions')
             );
 
             register_post_type( 'code', $args );
@@ -109,9 +109,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
         public function uc_manage_code_columns( $column, $post_id ) 
         {
             switch( $column ) 
-            {
-                          
-                    
+            {         
                 case 'postype':
 
                     echo translate( ucfirst( get_post_meta( $post_id, 'uc_post_type_id', true)), 'unlimited-codes' ) ; 
@@ -168,7 +166,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     
                 case 'shortcode':
 
-                    echo '[uc_shortcode_code id="'.$post_id.'"]';
+                    echo '[uc_shortcode id="'.$post_id.'"]';
 
                     break;
                     
@@ -193,7 +191,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
            
         public function uc_check_shortcode($code, $id)
         {
-            if(strpos($code, '[uc_shortcode_code id="'.$id.'"]') > 0)
+            if(strpos($code, '[uc_shortcode id="'.$id.'"]') > 0)
                 return translate( 'Can not load code shortcode inside it.', 'unlimited-codes' );
                 
             return $code;
@@ -222,6 +220,32 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_meta_box( 'zone-code', translate( 'Code options', 'unlimited-codes' ), 
                          array( $this, 'uc_meta_options'), 'code', 'side', 'default' );
         }
+        
+        public function uc_get_posts($post_types, $post_id)
+        {
+            if(get_post_meta( $post_id, 'uc_post_type_id', true) != "all" &&  get_post_meta( $post_id, 'uc_post_type_id', true) != "")
+            {
+                $args = array(
+                    'orderby' => 'title',
+                    'order' => 'asc',
+                    'numberposts' => -1,
+                    'post_type' => get_post_meta( $post_id, 'uc_post_type_id', true),
+                    'post_status' => 'publish'
+                 ); 
+            }
+            else
+            {
+                $args = array(
+                    'orderby' => 'title',
+                    'order' => 'asc',
+                    'numberposts' => -1,
+                    'post_type' => $post_types,
+                    'post_status' => 'publish'
+                 ); 
+            }
+            
+            return get_posts($args); 
+        }
 
         public function uc_meta_options( $post )
         {
@@ -242,9 +266,13 @@ if ( ! class_exists( 'unlimited_codes' ) )
                         <?php
 
                             $results = $wpdb->get_results( 'SELECT DISTINCT post_type FROM '.$wpdb->prefix.'posts WHERE post_status like "publish" and post_type <> "code" and post_type <> "nav_menu_item" and post_type <> "wpcf7_contact_form" order by 1 asc'  );
+            
+                            $post_types = array();
 
                             foreach ( $results as $row )
                             {
+                                $post_types[] = $row->post_type;
+                                
                                 echo '<option ';
 
                                 if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) == $row->post_type)
@@ -265,39 +293,26 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     <select multiple="multiple" id="uc_post_code_id" name="uc_post_code_id[]">
                         <?php
 
-                            if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) != "")
+                            $posts = $this->uc_get_posts($post_types,  get_the_ID());
+            
+                            $values = get_post_meta( get_the_ID(), 'uc_post_code_id');
+
+                            echo '<option value="0" ';
+
+                            if(in_array(0, $values[0]) || get_post_meta( get_the_ID(), 'uc_post_type_id', true) == "")
+                                echo ' selected="selected" ';
+
+                            echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
+
+                            foreach($posts as $post)
                             {
-                                $args = array(
-                                    'orderby' => 'title',
-                                    'order' => 'asc',
-                                    'numberposts' => -1,
-                                    'post_type' => get_post_meta( get_the_ID(), 'uc_post_type_id', true),
-                                    'post_status' => 'publish'
-                                 ); 
+                                echo '<option ';
 
-                                $posts = get_posts($args); 
+                                 if(in_array($post->ID, $values[0]))
+                                     echo ' selected="selected" ';
 
-                                $values = get_post_meta( get_the_ID(), 'uc_post_code_id');
-
-                                echo '<option value="0" ';
-
-                                if(in_array(0, $values[0]))
-                                    echo ' selected="selected" ';
-
-                                echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
-
-                                foreach($posts as $post)
-                                {
-                                    echo '<option ';
-
-                                     if(in_array($post->ID, $values[0]))
-                                         echo ' selected="selected" ';
-
-                                    echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
-                                } 
-                             }
-                            else
-                                echo '<option selected="selected" value="0" >'.translate( 'All', 'unlimited-codes' ).'</option>';
+                                echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
+                            } 
 
                             ?>
                     </select>
@@ -311,21 +326,18 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     <select multiple="multiple" id="uc_exclude_post_code_id" name="uc_exclude_post_code_id[]">
                         <?php
 
-                            if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) != "")
+                            $values = get_post_meta( get_the_ID(), 'uc_exclude_post_code_id');
+
+                            foreach($posts as $post)
                             {
-                                $values = get_post_meta( get_the_ID(), 'uc_exclude_post_code_id');
+                                echo '<option ';
 
-                                foreach($posts as $post)
-                                {
-                                    echo '<option ';
+                                 if(in_array($post->ID, $values[0]))
+                                     echo ' selected="selected" ';
 
-                                     if(in_array($post->ID, $values[0]))
-                                         echo ' selected="selected" ';
-
-                                    echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
-                                } 
-                             }
-
+                                echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
+                            } 
+                             
                             ?>
                     </select>
                 </p>
@@ -405,12 +417,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 <?php } ?>
                         
                  <p>
-                    <label for="uc_shortcode_code">
+                    <label for="uc_shortcode">
                         <?php echo translate( 'Shortcode code:', 'unlimited-codes' ) ?>
                     </label>
                 </p>
                 <p>
-                   <input type="text" readonly value='<?php echo '[uc_shortcode_code id="'.get_the_ID().'"]'; ?>' id="uc_shortcode_code" name="uc_shortcode_code" />
+                   <input type="text" readonly value='<?php echo '[uc_shortcode id="'.get_the_ID().'"]'; ?>' id="uc_shortcode" name="uc_shortcode" />
                 </p>
                 
                 <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />

@@ -7,14 +7,37 @@ if(isset($_REQUEST["post_type"]))
 	if ( ! function_exists( 'get_posts' ) ) 
      require_once '../../../wp-includes/post.php';
  
-	$args = array(
+    if($_REQUEST["post_type"] == "all")
+    {
+        global $wpdb;
+        
+        $results = $wpdb->get_results( 'SELECT DISTINCT post_type FROM '.$wpdb->prefix.'posts WHERE post_status like "publish" and post_type <> "code" and post_type <> "nav_menu_item" and post_type <> "wpcf7_contact_form" order by 1 asc'  );
+        
+        $post_types = array();
+        
+        foreach($results as $value)
+            $post_types[] = $value->post_type;
+        
+        $args = array(
+        'orderby' => 'title',
+        'order' => 'asc',
+        'numberposts' => -1,
+        'post_type' => $post_types, 
+		'post_status' => 'publish'
+	   ); 
+    }
+    else  
+    {
+        $args = array(
         'orderby' => 'title',
         'order' => 'asc',
         'numberposts' => -1,
 		'post_type' => $_REQUEST["post_type"],
 		'post_status' => 'publish'
-	); 
-	
+	   ); 
+    }
+        
+
 	$posts = get_posts($args); 
 
 	foreach($posts as $post)
