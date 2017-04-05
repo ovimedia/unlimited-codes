@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.3
+Version: 1.4
 Plugin URI: http://www.ovimedia.es/
 */
 
@@ -112,7 +112,16 @@ if ( ! class_exists( 'unlimited_codes' ) )
             {         
                 case 'postype':
 
-                    echo translate( ucfirst( get_post_meta( $post_id, 'uc_post_type_id', true)), 'unlimited-codes' ) ; 
+                    $values = get_post_meta( $post_id, 'uc_post_type_id') ; 
+                    
+                    $column_values = "";
+
+                    for ($x = 0; $x < count($values[0]); $x++)
+                    {
+                        $column_values .= translate( ucfirst(  $values[0][$x]), 'unlimited-codes' ).", ";
+                    }
+
+                    echo substr($column_values, 0, -2); 
 
                 break;    
                     
@@ -223,26 +232,18 @@ if ( ! class_exists( 'unlimited_codes' ) )
         
         public function uc_get_posts($post_types, $post_id)
         {
-            if(get_post_meta( $post_id, 'uc_post_type_id', true) != "all" &&  get_post_meta( $post_id, 'uc_post_type_id', true) != "")
-            {
-                $args = array(
-                    'orderby' => 'title',
-                    'order' => 'asc',
-                    'numberposts' => -1,
-                    'post_type' => get_post_meta( $post_id, 'uc_post_type_id', true),
-                    'post_status' => 'publish'
-                 ); 
-            }
-            else
-            {
-                $args = array(
-                    'orderby' => 'title',
-                    'order' => 'asc',
-                    'numberposts' => -1,
-                    'post_type' => $post_types,
-                    'post_status' => 'publish'
-                 ); 
-            }
+              $args = array(
+                'orderby' => 'title',
+                'order' => 'asc',
+                'numberposts' => -1,
+                'post_type' => $post_types,
+                'post_status' => 'publish'
+             ); 
+            
+            $types = get_post_meta( $post_id, 'uc_post_type_id');
+            
+            if( !in_array("all", $types[0]) && isset($types[0]))
+                $args['post_type'] = $types[0];
             
             return get_posts($args); 
         }
@@ -250,6 +251,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
         public function uc_meta_options( $post )
         {
             global $wpdb;
+            
+            $types = get_post_meta( get_the_ID(), 'uc_post_type_id');
 
             ?>
             <div class="meta_div_codes">         
@@ -259,9 +262,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     </label>
                 </p>
                 <p>
-                    <select id="uc_post_type_id" name="uc_post_type_id">
-                        <option value="all">
-                            <?php echo translate( 'All types', 'unlimited-codes' ) ?>
+                    <select multiple="multiple"  id="uc_post_type_id" name="uc_post_type_id[]">
+                        <option value="all" <?php if(in_array("all", $types[0]) || !isset($types[0])) echo ' selected="selected" '; ?> >
+                            <?php echo translate( 'All', 'unlimited-codes' ) ?>
                         </option>
                         <?php
 
@@ -275,7 +278,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                                 
                                 echo '<option ';
 
-                                if(get_post_meta( get_the_ID(), 'uc_post_type_id', true) == $row->post_type)
+                                if( in_array($row->post_type, $types[0]) )
                                     echo ' selected="selected" ';
 
                                 echo ' value="'.$row->post_type.'">'.ucfirst ($row->post_type).'</option>';
@@ -480,13 +483,13 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
             foreach($this->codes as $code)
             {
-                $post_type = get_post_meta( $code->ID, 'uc_post_type_id',  true );
+                $post_type = get_post_meta( $code->ID, 'uc_post_type_id' );
                 $post_id = get_post_meta( $code->ID, 'uc_post_code_id');
                 $exclude_post_id = get_post_meta( $code->ID, 'uc_exclude_post_code_id'); 
                 $post_location = get_post_meta( $code->ID, 'uc_location_code_page', true );
                 
                 if($this->check_wpml_languages($code->ID))
-                    if($post_type == "all" || $post_type == get_post_type(get_the_id()))
+                    if(in_array("all", $post_type[0]) || in_array(get_post_type(get_the_id()), $post_type[0]))
                         if( $post_location == $zone)
                             if(in_array(get_the_id(), $post_id[0]) || in_array(0, $post_id[0]) && !in_array(get_the_id(), $exclude_post_id[0] ))
                                 $result .= $code->post_content;

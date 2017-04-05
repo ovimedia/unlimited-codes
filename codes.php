@@ -6,8 +6,16 @@ if(isset($_REQUEST["post_type"]))
 {
 	if ( ! function_exists( 'get_posts' ) ) 
      require_once '../../../wp-includes/post.php';
+    
+    $args = array(
+        'orderby' => 'title',
+        'order' => 'asc',
+        'numberposts' => -1,
+        'post_type' => $_REQUEST["post_type"], 
+		'post_status' => 'publish'
+    ); 
  
-    if($_REQUEST["post_type"] == "all")
+    if(in_array( "all", $_REQUEST["post_type"]))
     {
         global $wpdb;
         
@@ -18,26 +26,9 @@ if(isset($_REQUEST["post_type"]))
         foreach($results as $value)
             $post_types[] = $value->post_type;
         
-        $args = array(
-        'orderby' => 'title',
-        'order' => 'asc',
-        'numberposts' => -1,
-        'post_type' => $post_types, 
-		'post_status' => 'publish'
-	   ); 
-    }
-    else  
-    {
-        $args = array(
-        'orderby' => 'title',
-        'order' => 'asc',
-        'numberposts' => -1,
-		'post_type' => $_REQUEST["post_type"],
-		'post_status' => 'publish'
-	   ); 
+        $args['post_type'] = $post_types;
     }
         
-
 	$posts = get_posts($args); 
 
 	foreach($posts as $post)
