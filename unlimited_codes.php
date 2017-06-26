@@ -5,10 +5,11 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.5
+Version: 1.6
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
+if ( ! defined( 'ABSPATH' ) ) exit; 
 
 if ( ! class_exists( 'unlimited_codes' ) ) 
 {
@@ -27,6 +28,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_action( 'wp_head', array( $this, 'uc_load_head') ); 
             add_action( 'woocommerce_after_single_product', array( $this,'uc_load_after_product'), 100 );
             add_action( 'woocommerce_before_single_product', array( $this,'uc_load_before_product'), 0 );
+    
+            add_action( 'wp_ajax_uc_load_posts', array( $this, 'uc_load_posts') );
             
             add_filter( 'the_content', array( $this, 'uc_load_body') );
             add_filter( 'plugin_action_links_'.plugin_basename( plugin_dir_path( __FILE__ ) . 'unlimited_codes.php'), array( $this, 'uc_plugin_settings_link' ) );
@@ -456,7 +459,6 @@ if ( ! class_exists( 'unlimited_codes' ) )
                    <input type="text" readonly value='[uc_post_title]' />
                 </p>
                 
-                <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />
                 <input type="hidden" id="post_id" value="<?php echo get_the_ID(); ?>" /> 
                 
             </div>
@@ -465,19 +467,61 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
         public function uc_save_data_codes( $post_id )
         {
-            if ( "code" != get_post_type($post_id)) return;
+            if ( "code" != get_post_type($post_id) || current_user_can("administrator") != 1 ) return;
 
-            update_post_meta( $post_id, 'uc_post_type_id',  $_REQUEST['uc_post_type_id'] );
+            $post_type_ids = $post_code_ids = $exclude_post_code_ids = array();
 
-            update_post_meta( $post_id, 'uc_post_code_id', $_REQUEST['uc_post_code_id'] );
-            
-            update_post_meta( $post_id, 'uc_exclude_post_code_id', $_REQUEST['uc_exclude_post_code_id'] );
+            $validate_uc_post_type_id = $validate_uc_post_code_id = $validate_exclude_post_code_ids = $validate_uc_wpml_languages_load = true;
 
-            update_post_meta( $post_id, 'uc_location_code_page', $_REQUEST['uc_location_code_page'] );
+            foreach( $_REQUEST['uc_post_type_id'] as $type)
+            {
+                if(wp_check_invalid_utf8( $type, true ) != "")
+                    $post_type_ids[] = sanitize_text_field($type);
+                else
+                    $validate_uc_post_type_id = false;
+            }
+
+            foreach( $_REQUEST['uc_post_code_id'] as $id)
+            {
+                if(intval($id))
+                    $post_code_ids[] = intval($id);
+                else
+                    $validate_uc_post_code_id = false;
+            }
+
+            foreach( $_REQUEST['uc_exclude_post_code_id'] as $id)
+            {
+                if(intval($id))
+                    $exclude_post_code_ids[] = intval($id);
+                else
+                    $validate_exclude_post_code_ids = false;
+            }
+
+            foreach( $_REQUEST['uc_wpml_languages_load'] as $id)
+            {
+                if(wp_check_invalid_utf8( $id, true ) != "")
+                    $uc_wpml_languages_load[] = sanitize_text_field($id);
+                else
+                    $validate_uc_wpml_languages_load = false;
+            }
+
+            if($validate_uc_post_type_id )
+                update_post_meta( $post_id, 'uc_post_type_id', $post_type_ids);
+
+            if($validate_uc_post_code_id)
+                update_post_meta( $post_id, 'uc_post_code_id', $post_code_ids);
             
-            update_post_meta( $post_id, 'uc_order_code', $_REQUEST['uc_order_code'] );
+            if($validate_exclude_post_code_ids)
+                update_post_meta( $post_id, 'uc_exclude_post_code_id', $exclude_post_code_ids);
+
+            if(wp_check_invalid_utf8( $_REQUEST['uc_location_code_page'], true ) != "")
+                update_post_meta( $post_id, 'uc_location_code_page', sanitize_text_field($_REQUEST['uc_location_code_page']) );
             
-            update_post_meta( $post_id, 'uc_wpml_languages_load', $_REQUEST['uc_wpml_languages_load'] );
+            if(! intval($_REQUEST['uc_order_code'] ))
+                update_post_meta( $post_id, 'uc_order_code', intval( $_REQUEST['uc_order_code'] ));
+
+            if($validate_uc_wpml_languages_load)
+                update_post_meta( $post_id, 'uc_wpml_languages_load', $uc_wpml_languages_load);
         }
 
         public function uc_load_body($content) 
@@ -543,9 +587,47 @@ if ( ! class_exists( 'unlimited_codes' ) )
         
         public function uc_plugin_settings_link( $links ) 
         { 
-            $settings_link = '<a href="'.get_home_url().'/wp-admin/edit.php?post_type=code">'.translate( 'Codes', 'unlimited-codes' ).'</a>';
+            $settings_link = '<a href="'.admin_url().'/edit.php?post_type=code">'.translate( 'Codes', 'unlimited-codes' ).'</a>';
             array_unshift( $links, $settings_link ); 
             return $links; 
+        }
+
+        public function uc_load_posts()
+        {
+            $args = array(
+                    'orderby' => 'title',
+                    'order' => 'asc',
+                    'numberposts' => -1,
+                    'post_type' => $_REQUEST["post_type"], 
+                    'post_status' => 'publish'
+                ); 
+            
+            if(in_array( "all", $_REQUEST["post_type"]))
+            {
+                global $wpdb;
+                
+                $results = $wpdb->get_results( 'SELECT DISTINCT post_type FROM '.$wpdb->prefix.'posts WHERE post_status like "publish" and post_type <> "code" and post_type <> "nav_menu_item" and post_type <> "wpcf7_contact_form" order by 1 asc'  );
+                
+                $post_types = array();
+                
+                foreach($results as $value)
+                    $post_types[] = $value->post_type;
+                
+                $args['post_type'] = $post_types;
+            }
+                
+            $posts = get_posts($args); 
+
+            foreach($posts as $post)
+            {
+                echo '<option ';
+                
+                if(get_post_meta( $_REQUEST["post_id"], 'uc_post_code_id', true) == $post->ID)
+                    echo ' selected="selected" ';
+                
+                echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
+            } 
+
         }
     }
 }

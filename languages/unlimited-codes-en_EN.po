@@ -1,0 +1,160 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2017-06-26 21:23+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.11\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# @ su
+#: unlimited_codes.php:15
+msgid "Codes"
+msgstr "Codes"
+
+# @ su
+#: unlimited_codes.php:15
+msgid "Code"
+msgstr "Code"
+
+# @ su
+#: unlimited_codes.php:17
+msgid "Add code"
+msgstr "Add code"
+
+# @ su
+#: unlimited_codes.php:18
+msgid "Add new code"
+msgstr "Add new code"
+
+# @ su
+#: unlimited_codes.php:19
+msgid "Edit code"
+msgstr "Edit code"
+
+# @ su
+#: unlimited_codes.php:20
+msgid "New code"
+msgstr "New code"
+
+# @ su
+#: unlimited_codes.php:21
+msgid "Show code"
+msgstr "Show code"
+
+# @ su
+#: unlimited_codes.php:22
+msgid "Search codes"
+msgstr "Search codes"
+
+# @ su
+#: unlimited_codes.php:23
+msgid "No codes found"
+msgstr "No codes found"
+
+# @ su
+#: unlimited_codes.php:24
+msgid "No codes found in trash"
+msgstr "No codes found"
+
+# @ su
+#: unlimited_codes.php:71
+msgid "Code options"
+msgstr "Code options"
+
+# @ su
+#: unlimited_codes.php:80
+msgid "Post type:"
+msgstr "Post type:"
+
+# @ su
+#: unlimited_codes.php:82
+msgid "All types"
+msgstr "All types"
+
+# @ su
+#: unlimited_codes.php:100
+msgid "Load into:"
+msgstr "Load into:"
+
+# @ su
+#: unlimited_codes.php:102
+msgid "All"
+msgstr "All"
+
+# @ su
+#: unlimited_codes.php:133
+msgid "Page location:"
+msgstr "Page location:"
+
+# @ su
+#: unlimited_codes.php:138
+msgid "Head"
+msgstr "Head"
+
+# @ su
+#: unlimited_codes.php:173
+msgid "Before content"
+msgstr "Before content"
+
+# @ su
+#: unlimited_codes.php:176
+msgid "After content"
+msgstr "Before content"
+
+# @ su
+#: unlimited_codes.php:148
+msgid "Footer"
+msgstr "Footer"
+
+# @ su
+#: unlimited_codes.php:178
+msgid "Exclude in:"
+msgstr "Exclude in:"
+
+# @ su
+#: unlimited_codes.php
+msgid "Order:"
+msgstr "Order:"
+
+# @ su
+#: unlimited_codes.php
+msgid "Apply in following languages:"
+msgstr "Apply in following languages:"
+
+# @ su
+#: unlimited_codes.php
+msgid "Code shortcode:"
+msgstr "Code shortcode:"
+
+# @ su
+#: unlimited_codes.php
+msgid "Can not load code shortcode inside it."
+msgstr "Can not load code shortcode inside it."
+
+# @ su
+#: unlimited_codes.php
+msgid "Page"
+msgstr "Page"
+
+# @ su
+#: unlimited_codes.php
+msgid "Post"
+msgstr "Post"
+
+# @ su
+#: unlimited_codes.php
+msgid "Product"
+msgstr "Product"
+
+# @ su
+#: unlimited_codes.php
+msgid "Title post shortcode:"
+msgstr "Title post shortcode:"
