@@ -5,8 +5,8 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.4
-Plugin URI: http://www.ovimedia.es/
+Version: 1.5
+Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
 
@@ -35,8 +35,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_filter( 'manage_edit-code_columns', array( $this, 'uc_edit_code_columns' )) ;
             add_action( 'manage_code_posts_custom_column', array( $this, 'uc_manage_code_columns'), 10, 2 );
             
-
+            add_action( 'template_redirect', array( $this, 'uc_redirect_post') );   
             add_shortcode( 'uc_shortcode', array( $this, 'uc_load_shortcode'));
+            add_shortcode( 'uc_post_title', array( $this, 'uc_load_title_post_shortcode'));
             
             $args = array(
                 'numberposts' =>   -1,
@@ -48,6 +49,15 @@ if ( ! class_exists( 'unlimited_codes' ) )
             ); 
 
             $this->codes = get_posts($args); 
+        }
+
+        public function uc_redirect_post() 
+        {
+            if ( is_single() && 'code' ==  get_query_var('post_type') ) 
+            {
+                wp_redirect( home_url(), 301 );
+                exit;
+            }
         }
         
         public function uc_load_languages() 
@@ -130,10 +140,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     $values = get_post_meta( $post_id, 'uc_post_code_id');
                     
                     $column_values = "";
+
+                    $values = $values[0];   
                     
                     foreach ($values as $value)
                     {
-                        $post = get_post($value[0]);
+                        $post = get_post($value);
                         
                         if($post->ID == $post_id)
                             $column_values .= translate( 'All', 'unlimited-codes' ).", ";
@@ -149,12 +161,14 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 case 'excludein':
                     
                     $values = get_post_meta( $post_id, 'uc_exclude_post_code_id');
-                    
+
                     $column_values = "";
+
+                    $values = $values[0];   
                     
                     foreach ($values as $value)
                     {
-                        $post = get_post($value[0]);
+                        $post = get_post($value);
                         
                         if($post->ID == $post_id)
                             $column_values .= "-, ";
@@ -196,6 +210,11 @@ if ( ! class_exists( 'unlimited_codes' ) )
             $code = get_post($atts['id']); 
             
             return do_shortcode($this->uc_check_shortcode($code->post_content, $atts['id']));
+        }
+
+        public function uc_load_title_post_shortcode( $atts ) 
+        {
+            return the_title();
         }
            
         public function uc_check_shortcode($code, $id)
@@ -421,11 +440,20 @@ if ( ! class_exists( 'unlimited_codes' ) )
                         
                  <p>
                     <label for="uc_shortcode">
-                        <?php echo translate( 'Shortcode code:', 'unlimited-codes' ) ?>
+                        <?php echo translate( 'Code shortcode:', 'unlimited-codes' ) ?>
                     </label>
                 </p>
                 <p>
                    <input type="text" readonly value='<?php echo '[uc_shortcode id="'.get_the_ID().'"]'; ?>' id="uc_shortcode" name="uc_shortcode" />
+                </p>
+
+                <p>
+                    <label for="uc_shortcode">
+                        <?php echo translate( 'Title post shortcode:', 'unlimited-codes' ) ?>
+                    </label>
+                </p>
+                <p>
+                   <input type="text" readonly value='[uc_post_title]' />
                 </p>
                 
                 <input type="hidden" id="url_base" value="<?php echo WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/'; ?>" />
