@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.6
+Version: 1.6.1
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
@@ -322,9 +322,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
             
                             $values = get_post_meta( get_the_ID(), 'uc_post_code_id');
 
-                            echo '<option value="0" ';
+                            echo '<option value="-1" ';
 
-                            if(in_array(0, $values[0]) || get_post_meta( get_the_ID(), 'uc_post_type_id', true) == "")
+                            if(in_array(-1, $values[0]) || get_post_meta( get_the_ID(), 'uc_post_type_id', true) == "")
                                 echo ' selected="selected" ';
 
                             echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
@@ -458,9 +458,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 <p>
                    <input type="text" readonly value='[uc_post_title]' />
                 </p>
-                
-                <input type="hidden" id="post_id" value="<?php echo get_the_ID(); ?>" /> 
-                
+                  
             </div>
         <?php 
         }
@@ -517,8 +515,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
             if(wp_check_invalid_utf8( $_REQUEST['uc_location_code_page'], true ) != "")
                 update_post_meta( $post_id, 'uc_location_code_page', sanitize_text_field($_REQUEST['uc_location_code_page']) );
             
-            if(! intval($_REQUEST['uc_order_code'] ))
-                update_post_meta( $post_id, 'uc_order_code', intval( $_REQUEST['uc_order_code'] ));
+            update_post_meta( $post_id, 'uc_order_code', intval( $_REQUEST['uc_order_code'] ));
 
             if($validate_uc_wpml_languages_load)
                 update_post_meta( $post_id, 'uc_wpml_languages_load', $uc_wpml_languages_load);

@@ -1,9 +1,5 @@
 jQuery(document).ready(function($) {
     jQuery("#uc_post_type_id").on("change", function() {
-        load_data();
-    });
-
-    function load_data() {
         var request = jQuery.ajax({
             url: "admin-ajax.php",
             method: "POST",
@@ -14,7 +10,7 @@ jQuery(document).ready(function($) {
             jQuery("#uc_post_code_id, #uc_exclude_post_code_id").children('option:not(:first)').remove();
             jQuery("#uc_post_code_id, #uc_exclude_post_code_id").append(msg);
         });
-    }
+    });
 
     $('#zone-code select').select2({ tags: true });
 });
