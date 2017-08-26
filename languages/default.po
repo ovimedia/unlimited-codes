@@ -3,158 +3,158 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2017-06-26 21:23+0200\n"
+"PO-Revision-Date: 2017-07-15 21:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 2.0.2\n"
 "X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # @ su
 #: unlimited_codes.php:15
 msgid "Codes"
-msgstr "Codes"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:15
 msgid "Code"
-msgstr "Code"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:17
 msgid "Add code"
-msgstr "Add code"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:18
 msgid "Add new code"
-msgstr "Add new code"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:19
 msgid "Edit code"
-msgstr "Edit code"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:20
 msgid "New code"
-msgstr "New code"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:21
 msgid "Show code"
-msgstr "Show code"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:22
 msgid "Search codes"
-msgstr "Search codes"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:23
 msgid "No codes found"
-msgstr "No codes found"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:24
 msgid "No codes found in trash"
-msgstr "No codes found"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:71
 msgid "Code options"
-msgstr "Code options"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:80
 msgid "Post type:"
-msgstr "Post type:"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:82
 msgid "All types"
-msgstr "All types"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:100
 msgid "Load into:"
-msgstr "Load into:"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:102
 msgid "All"
-msgstr "All"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:133
 msgid "Page location:"
-msgstr "Page location:"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:138
 msgid "Head"
-msgstr "Head"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:173
 msgid "Before content"
-msgstr "Before content"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:176
 msgid "After content"
-msgstr "Before content"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:148
 msgid "Footer"
-msgstr "Footer"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php:178
 msgid "Exclude in:"
-msgstr "Exclude in:"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php
 msgid "Order:"
-msgstr "Order:"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php
 msgid "Apply in following languages:"
-msgstr "Apply in following languages:"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php
 msgid "Code shortcode:"
-msgstr "Code shortcode:"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php
 msgid "Can not load code shortcode inside it."
-msgstr "Can not load code shortcode inside it."
+msgstr ""
 
 # @ su
 #: unlimited_codes.php
 msgid "Page"
-msgstr "Page"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php
 msgid "Post"
-msgstr "Post"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php
 msgid "Product"
-msgstr "Product"
+msgstr ""
 
 # @ su
 #: unlimited_codes.php
 msgid "Title post shortcode:"
-msgstr "Title post shortcode:"
+msgstr ""

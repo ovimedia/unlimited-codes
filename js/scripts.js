@@ -12,5 +12,5 @@ jQuery(document).ready(function($) {
         });
     });
 
-    $('#zone-code select').select2({ tags: true });
+    jQuery('#zone-code select').select2({ tags: true });
 });

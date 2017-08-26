@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.6.1
+Version: 1.6.3
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
@@ -28,6 +28,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_action( 'wp_head', array( $this, 'uc_load_head') ); 
             add_action( 'woocommerce_after_single_product', array( $this,'uc_load_after_product'), 100 );
             add_action( 'woocommerce_before_single_product', array( $this,'uc_load_before_product'), 0 );
+            add_action( 'woocommerce_after_shop_loop', array( $this,'uc_load_after_product'), 100 );
+            add_action( 'woocommerce_before_shop_loop', array( $this,'uc_load_before_product'), 0 );
     
             add_action( 'wp_ajax_uc_load_posts', array( $this, 'uc_load_posts') );
             
@@ -140,20 +142,21 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     
                 case 'loadinto':
                     
-                    $values = get_post_meta( $post_id, 'uc_post_code_id');
+                    $values = get_post_meta( $post_id, 'uc_post_code_id', true);
                     
                     $column_values = "";
-
-                    $values = $values[0];   
                     
                     foreach ($values as $value)
                     {
-                        $post = get_post($value);
-                        
-                        if($post->ID == $post_id)
+                        if($value == -1)
+                        {
                             $column_values .= translate( 'All', 'unlimited-codes' ).", ";
+                        }
                         else  
+                        {
+                            $post = get_post($value);
                             $column_values .= translate( ucfirst(  $post->post_title ), 'unlimited-codes' ).", ";
+                        }
                     }
 
                     echo substr($column_values, 0, -2); 
@@ -560,7 +563,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 if($this->check_wpml_languages($code->ID))
                     if(in_array("all", $post_type[0]) || in_array(get_post_type(get_the_id()), $post_type[0]))
                         if( $post_location == $zone)
-                            if(in_array(get_the_id(), $post_id[0]) || in_array(0, $post_id[0]) && !in_array(get_the_id(), $exclude_post_id[0] ))
+                            if(in_array(get_the_id(), $post_id[0]) || in_array(-1, $post_id[0]) && !in_array(get_the_id(), $exclude_post_id[0] ))
                                 $result .= $code->post_content;
             }	
 
