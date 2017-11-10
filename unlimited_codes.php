@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.6.3
+Version: 1.7
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
@@ -43,6 +43,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_action( 'template_redirect', array( $this, 'uc_redirect_post') );   
             add_shortcode( 'uc_shortcode', array( $this, 'uc_load_shortcode'));
             add_shortcode( 'uc_post_title', array( $this, 'uc_load_title_post_shortcode'));
+
+            add_action( 'vc_before_init',  array( $this, 'uc_vc_code_shortcode') );
+            add_action( 'vc_before_init',  array( $this, 'uc_vc_post_title') );
             
             $args = array(
                 'numberposts' =>   -1,
@@ -220,7 +223,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
         public function uc_load_title_post_shortcode( $atts ) 
         {
-            return the_title();
+            return get_the_title();
         }
            
         public function uc_check_shortcode($code, $id)
@@ -628,6 +631,49 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
             } 
 
+        }
+
+        
+        public function uc_vc_code_shortcode() 
+        {
+            $values = array();
+
+            foreach($this->codes as $code)
+            {
+                $values[$code->post_title] = $code->ID;
+            }
+
+            vc_map( array(
+                "name" => translate( "Unlimited Code", "unlimited-codes" ),
+                "base" => "uc_shortcode",
+                "class" => "",
+                "category" => __( "Content", "js_composer"),
+                'admin_enqueue_js' => array(get_template_directory_uri().'/vc_extend/bartag.js'),
+                'admin_enqueue_css' => array(get_template_directory_uri().'/vc_extend/bartag.css'),
+                "params" => array(
+                    array(
+                        "type" => "dropdown",
+                        "holder" => "div",
+                        "class" => "",
+                        "heading" => translate( "Unlimited Code:", "unlimited-codes" ),
+                        "param_name" => "id",
+                        "value" => $values,
+                        "description" => translate( "Select a unlimited code.", "unlimited-codes" )
+                    )
+                )
+            ) );
+        }
+
+        public function uc_vc_post_title() 
+        {
+            vc_map( array(
+                "name" => translate( "Post title", "unlimited-codes" ),
+                "base" => "uc_post_title",
+                "class" => "",
+                "category" => __( "Content", "js_composer"),
+                'admin_enqueue_js' => array(get_template_directory_uri().'/vc_extend/bartag.js'),
+                'admin_enqueue_css' => array(get_template_directory_uri().'/vc_extend/bartag.css'),
+            ) );
         }
     }
 }

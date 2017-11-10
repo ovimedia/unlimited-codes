@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2017-07-15 21:11+0200\n"
+"PO-Revision-Date: 2017-11-10 20:56+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -157,4 +157,9 @@ msgstr ""
 # @ su
 #: unlimited_codes.php
 msgid "Title post shortcode:"
+msgstr ""
+
+# @ su
+#: unlimited_codes.php
+msgid "Select a unlimited code."
 msgstr ""
