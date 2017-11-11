@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.7
+Version: 1.7.1
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
@@ -42,10 +42,12 @@ if ( ! class_exists( 'unlimited_codes' ) )
             
             add_action( 'template_redirect', array( $this, 'uc_redirect_post') );   
             add_shortcode( 'uc_shortcode', array( $this, 'uc_load_shortcode'));
-            add_shortcode( 'uc_post_title', array( $this, 'uc_load_title_post_shortcode'));
+            add_shortcode( 'uc_post_title', array( $this, 'uc_load_post_title_shortcode'));
+            add_shortcode( 'uc_post_taxonomy_terms', array( $this, 'uc_load_post_taxonomy_terms_shortcode'));
 
             add_action( 'vc_before_init',  array( $this, 'uc_vc_code_shortcode') );
             add_action( 'vc_before_init',  array( $this, 'uc_vc_post_title') );
+            add_action( 'vc_before_init',  array( $this, 'uc_vc_post_taxonomy') );
             
             $args = array(
                 'numberposts' =>   -1,
@@ -221,10 +223,34 @@ if ( ! class_exists( 'unlimited_codes' ) )
             return do_shortcode($this->uc_check_shortcode($code->post_content, $atts['id']));
         }
 
-        public function uc_load_title_post_shortcode( $atts ) 
+        public function uc_load_post_title_shortcode( $atts ) 
         {
-            return get_the_title();
+            return "<".$atts['tag']." class='".$atts['class']."' style='text-align: ".$atts['align']."; 
+            padding: ".$atts["padding"]."' >".get_the_title()."</".$atts['tag'].">";
         }
+
+        public function uc_load_post_taxonomy_terms_shortcode( $atts ) 
+        {
+            $terms = wp_get_post_terms(get_the_ID(), $atts['taxonomy']);
+
+            $result = "";
+
+            foreach($terms as $term)
+            {
+                if($atts["link"] == "yes")
+                    $result .= "<a href='".get_term_link($term->term_id)."' >";
+
+                $result .= $term->name;
+
+                if($atts["link"] == "yes")
+                    $result .= "</a>";
+
+                $result .= " / ";
+            }           
+            
+            return "<p class='".$atts['class']."'>".substr($result, 0, -3)."</p>";
+        }
+      
            
         public function uc_check_shortcode($code, $id)
         {
@@ -673,8 +699,102 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 "category" => __( "Content", "js_composer"),
                 'admin_enqueue_js' => array(get_template_directory_uri().'/vc_extend/bartag.js'),
                 'admin_enqueue_css' => array(get_template_directory_uri().'/vc_extend/bartag.css'),
+                "params" => array(              
+                    array(
+                        "type" => "dropdown",
+                        "holder" => "div",
+                        "class" => "",
+                        "heading" => translate( "HTML tag:", "unlimited-codes" ),
+                        "param_name" => "tag",
+                        "value" => array(
+                            "P" => "p",
+                            "H1" => "h1",
+                            "H2" => "h2",
+                            "H3" => "h3",
+                            "H4" => "h4",
+                            "H5" => "h5",
+                            "H6" => "h6"
+                        ),
+                        "description" => translate( "Select a HTML tag.", "unlimited-codes" )
+                    ),
+                    array(
+                        "type" => "dropdown",
+                        "holder" => "div",
+                        "class" => "",
+                        "heading" => translate( "Text align:", "unlimited-codes" ),
+                        "param_name" => "align",
+                        "value" => array(
+                            "Left" => "left",
+                            "Center" => "center",
+                            "Right" => "right"
+                        ),
+                        "description" => translate( "Select a text align.", "unlimited-codes" )
+                    ),
+                    array(
+                        "type" => "textfield",
+                        "holder" => "div",
+                        "class" => "",
+                        "heading" => translate( "Padding for title:", "unlimited-codes" ),
+                        "param_name" => "padding",
+                        "description" => translate( "Select a padding in px or %.", "unlimited-codes" )
+                    ),
+                    array(
+                        "type" => "textfield",
+                        "holder" => "div",
+                        "class" => "",
+                        "heading" => translate( "CSS Class:", "unlimited-codes" ),
+                        "param_name" => "class",
+                        "description" => translate( "Select a CSS class.", "unlimited-codes" )
+                    ),
+                )
             ) );
         }
+
+        public function uc_vc_post_taxonomy() 
+        {
+            vc_map( array(
+                "name" => translate( "Post taxonomy terms", "unlimited-codes" ),
+                "base" => "uc_post_taxonomy_terms",
+                "class" => "",
+                "category" => __( "Content", "js_composer"),
+                'admin_enqueue_js' => array(get_template_directory_uri().'/vc_extend/bartag.js'),
+                'admin_enqueue_css' => array(get_template_directory_uri().'/vc_extend/bartag.css'),
+                "params" => array(              
+                    array(
+                        "type" => "textfield",
+                        "holder" => "div",
+                        "class" => "",
+                        "heading" => translate( "Taxonomy post:", "unlimited-codes" ),
+                        "param_name" => "taxonomy",
+                        "description" => translate( "Type the taxonomy to show the terms.", "unlimited-codes" )
+                    ),
+                    array(
+                        "type" => "dropdown",
+                        "holder" => "div",
+                        "class" => "",
+                        "heading" => translate( "Link term:", "unlimited-codes" ),
+                        "param_name" => "link",
+                        "value" => array(
+                            "No" => "no",
+                            "Yes" => "yes"  
+                        ),
+                        "description" => translate( "Add a link for every term.", "unlimited-codes" )
+                    ),
+                    array(
+                        "type" => "textfield",
+                        "holder" => "div",
+                        "class" => "",
+                        "heading" => translate( "CSS Class:", "unlimited-codes" ),
+                        "param_name" => "class",
+                        "description" => translate( "Select a CSS class.", "unlimited-codes" )
+                    ),
+                )
+            ) );
+        }
+
+        
+
+
     }
 }
 
