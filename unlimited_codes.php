@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.7.1
+Version: 1.7.3
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
@@ -481,15 +481,6 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 <p>
                    <input type="text" readonly value='<?php echo '[uc_shortcode id="'.get_the_ID().'"]'; ?>' id="uc_shortcode" name="uc_shortcode" />
                 </p>
-
-                <p>
-                    <label for="uc_shortcode">
-                        <?php echo translate( 'Title post shortcode:', 'unlimited-codes' ) ?>
-                    </label>
-                </p>
-                <p>
-                   <input type="text" readonly value='[uc_post_title]' />
-                </p>
                   
             </div>
         <?php 
@@ -657,6 +648,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
             } 
 
+            exit();
+
         }
 
         
@@ -791,10 +784,6 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 )
             ) );
         }
-
-        
-
-
     }
 }
 

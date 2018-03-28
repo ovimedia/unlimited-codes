@@ -3,7 +3,7 @@
 Tags: codes, html, css, js, shortcodes
 Requires at least: 4.7
 Tested up to: 4.8
-Stable tag: 1.7
+Stable tag: 1.7.1
 License: GPLv2 or later
 
 Unlimited codes allows include different code types in your Wordpress.
