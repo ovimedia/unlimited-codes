@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.7.3
+Version: 1.7.5
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
@@ -65,7 +65,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
         {
             if ( is_single() && 'code' ==  get_query_var('post_type') ) 
             {
-                wp_redirect( home_url(), 301 );
+                wp_redirect( get_home_url(), 301 );
                 exit;
             }
         }
@@ -405,6 +405,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 </p>
                 <p>
                     <select id="uc_location_code_page" name="uc_location_code_page">
+                    <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="neither" ) { echo " selected='selected' "; } ?> value="neither">
+                            <?php echo translate( 'Neither', 'unlimited-codes' ) ?>
+                        </option>
                         <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="head" ) { echo " selected='selected' "; } ?> value="head">
                             <?php echo translate( 'Head', 'unlimited-codes' ) ?>
                         </option>
@@ -481,14 +484,14 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 <p>
                    <input type="text" readonly value='<?php echo '[uc_shortcode id="'.get_the_ID().'"]'; ?>' id="uc_shortcode" name="uc_shortcode" />
                 </p>
-                  
+                  <input type="hidden" value="ok" id="uc_validate_data" name="uc_validate_data" />
             </div>
         <?php 
         }
 
         public function uc_save_data_codes( $post_id )
         {
-            if ( "code" != get_post_type($post_id) || current_user_can("administrator") != 1 ) return;
+            if ( "code" != get_post_type($post_id) || current_user_can("administrator") != 1 || !isset($_REQUEST['uc_validate_data'])) return;
 
             $post_type_ids = $post_code_ids = $exclude_post_code_ids = array();
 

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2017-11-10 20:56+0100\n"
+"PO-Revision-Date: 2018-05-19 12:48+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -36,7 +36,7 @@ msgstr ""
 
 # @ su
 #: unlimited_codes.php:19
-msgid "Edit code"
+msgid "Edit codes"
 msgstr ""
 
 # @ su
@@ -162,4 +162,9 @@ msgstr ""
 # @ su
 #: unlimited_codes.php
 msgid "Select a unlimited code."
+msgstr ""
+
+# @ su
+#: unlimited_codes.php
+msgid "Neither"
 msgstr ""
