@@ -14,9 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 if ( ! class_exists( 'unlimited_codes' ) ) 
 {
 	class unlimited_codes 
-    {
-        public $codes = "";
-        
+    {        
         function __construct() 
         {   
             add_action( 'init', array( $this, 'uc_load_languages') );
@@ -48,17 +46,6 @@ if ( ! class_exists( 'unlimited_codes' ) )
             add_action( 'vc_before_init',  array( $this, 'uc_vc_code_shortcode') );
             add_action( 'vc_before_init',  array( $this, 'uc_vc_post_title') );
             add_action( 'vc_before_init',  array( $this, 'uc_vc_post_taxonomy') );
-            
-            $args = array(
-                'numberposts' =>   -1,
-                'post_type' => "code",
-                'post_status' => 'publish',
-                'meta_key'   => 'uc_order_code',
-                'orderby'    => 'meta_value_num',
-                'order'      => 'ASC'
-            ); 
-
-            $this->codes = get_posts($args); 
         }
 
         public function uc_redirect_post() 
@@ -405,19 +392,19 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 </p>
                 <p>
                     <select id="uc_location_code_page" name="uc_location_code_page">
-                    <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="neither" ) { echo " selected='selected' "; } ?> value="neither">
+                    <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true) =="neither" ) { echo " selected='selected' "; } ?> value="neither">
                             <?php echo translate( 'Neither', 'unlimited-codes' ) ?>
                         </option>
-                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="head" ) { echo " selected='selected' "; } ?> value="head">
+                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true) =="head" ) { echo " selected='selected' "; } ?> value="head">
                             <?php echo translate( 'Head', 'unlimited-codes' ) ?>
                         </option>
-                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="before_content" ) { echo " selected='selected' "; } ?> value="before_content">
+                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true) =="before_content" ) { echo " selected='selected' "; } ?> value="before_content">
                             <?php echo translate( 'Before content', 'unlimited-codes' ) ?>
                         </option>
-                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="after_content" ) { echo " selected='selected' "; } ?> value="after_content">
+                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true) =="after_content" ) { echo " selected='selected' "; } ?> value="after_content">
                             <?php echo translate( 'After content', 'unlimited-codes' ) ?>
                         </option>
-                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true)=="footer" ) { echo " selected='selected' "; } ?> value="footer">
+                        <option <?php if(get_post_meta( get_the_ID(), 'uc_location_code_page', true) =="footer" ) { echo " selected='selected' "; } ?> value="footer">
                             <?php echo translate( 'Footer', 'unlimited-codes' ) ?>
                         </option>
                     </select>
@@ -576,7 +563,25 @@ if ( ! class_exists( 'unlimited_codes' ) )
         {
             $result = "";
 
-            foreach($this->codes as $code)
+            $args = array(
+                'numberposts' =>   -1,
+                'post_type' => "code",
+                'post_status' => 'publish',
+                'meta_key'   => 'uc_order_code',
+                'orderby'    => 'meta_value_num',
+                'order'      => 'ASC',
+                'meta_query' => array(
+                    array(
+                        'key' => 'uc_location_code_page',
+                        'value'  =>  'neither',
+                        'compare' => 'NOT IN'
+                    )
+                )
+            ); 
+
+            $codes = get_posts($args); 
+
+            foreach($codes as $code)
             {
                 $post_type = get_post_meta( $code->ID, 'uc_post_type_id' );
                 $post_id = get_post_meta( $code->ID, 'uc_post_code_id');
@@ -660,7 +665,18 @@ if ( ! class_exists( 'unlimited_codes' ) )
         {
             $values = array();
 
-            foreach($this->codes as $code)
+            $args = array(
+                'numberposts' =>   -1,
+                'post_type' => "code",
+                'post_status' => 'publish',
+                'meta_key'   => 'uc_order_code',
+                'orderby'    => 'meta_value_num',
+                'order'      => 'ASC'
+            ); 
+
+            $codes = get_posts($args); 
+
+            foreach($codes as $code)
             {
                 $values[$code->post_title] = $code->ID;
             }
