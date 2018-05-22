@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.7.5
+Version: 1.7.7
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
@@ -669,7 +669,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 "name" => translate( "Unlimited Code", "unlimited-codes" ),
                 "base" => "uc_shortcode",
                 "class" => "",
-                "category" => __( "Content", "js_composer"),
+                "icon" => WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/img/ufc_icon.png',
+                "category" => translate( "Unlimited Codes", "unlimited-codes"),
                 'admin_enqueue_js' => array(get_template_directory_uri().'/vc_extend/bartag.js'),
                 'admin_enqueue_css' => array(get_template_directory_uri().'/vc_extend/bartag.css'),
                 "params" => array(
@@ -692,7 +693,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 "name" => translate( "Post title", "unlimited-codes" ),
                 "base" => "uc_post_title",
                 "class" => "",
-                "category" => __( "Content", "js_composer"),
+                "icon" => WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/img/ufc_icon.png',
+                "category" => translate( "Unlimited Codes", "unlimited-codes"),
                 'admin_enqueue_js' => array(get_template_directory_uri().'/vc_extend/bartag.js'),
                 'admin_enqueue_css' => array(get_template_directory_uri().'/vc_extend/bartag.css'),
                 "params" => array(              
@@ -752,7 +754,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 "name" => translate( "Post taxonomy terms", "unlimited-codes" ),
                 "base" => "uc_post_taxonomy_terms",
                 "class" => "",
-                "category" => __( "Content", "js_composer"),
+                "icon" => WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/img/ufc_icon.png',
+                "category" => translate( "Unlimited Codes", "unlimited-codes"),
                 'admin_enqueue_js' => array(get_template_directory_uri().'/vc_extend/bartag.js'),
                 'admin_enqueue_css' => array(get_template_directory_uri().'/vc_extend/bartag.css'),
                 "params" => array(              
