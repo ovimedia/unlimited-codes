@@ -65,8 +65,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
         public function uc_init_taxonomy()
         {    
             $labels = array(
-                'name' => translate( 'Codes', 'unlimited-codes' ),
-                'singular_name' => translate( 'Code', 'unlimited-codes' ),
+                'name' => translate( 'Unlimited Codes', 'unlimited-codes' ),
+                'singular_name' => translate( 'Unlimited Code', 'unlimited-codes' ),
                 'add_new' =>  translate( 'Add code', 'unlimited-codes' ),
                 'add_new_item' => translate( 'Add new code', 'unlimited-codes' ),
                 'edit_item' => translate( 'Edit codes', 'unlimited-codes' ),
@@ -119,13 +119,13 @@ if ( ! class_exists( 'unlimited_codes' ) )
             {         
                 case 'postype':
 
-                    $values = get_post_meta( $post_id, 'uc_post_type_id') ; 
+                    $values = get_post_meta( $post_id, 'uc_post_type_id', true) ; 
                     
                     $column_values = "";
 
-                    for ($x = 0; $x < count($values[0]); $x++)
+                    for ($x = 0; $x < count($values); $x++)
                     {
-                        $column_values .= translate( ucfirst(  $values[0][$x]), 'unlimited-codes' ).", ";
+                        $column_values .= translate( ucfirst(  $values[$x]), 'unlimited-codes' ).", ";
                     }
 
                     echo substr($column_values, 0, -2); 
@@ -158,11 +158,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     
                 case 'excludein':
                     
-                    $values = get_post_meta( $post_id, 'uc_exclude_post_code_id');
+                    $values = get_post_meta( $post_id, 'uc_exclude_post_code_id', true);
 
                     $column_values = "";
-
-                    $values = $values[0];   
                     
                     foreach ($values as $value)
                     {
@@ -281,10 +279,10 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 'post_status' => 'publish'
              ); 
             
-            $types = get_post_meta( $post_id, 'uc_post_type_id');
+            $types = get_post_meta( $post_id, 'uc_post_type_id', true);
             
-            if( !in_array("all", $types[0]) && isset($types[0]))
-                $args['post_type'] = $types[0];
+            if( !in_array("all", $types) && isset($types))
+                $args['post_type'] = $types;
             
             return get_posts($args); 
         }
@@ -293,7 +291,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
         {
             global $wpdb;
             
-            $types = get_post_meta( get_the_ID(), 'uc_post_type_id');
+            $types = get_post_meta( get_the_ID(), 'uc_post_type_id', true);
 
             ?>
             <div class="meta_div_codes">         
@@ -304,7 +302,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 </p>
                 <p>
                     <select multiple="multiple"  id="uc_post_type_id" name="uc_post_type_id[]">
-                        <option value="all" <?php if(in_array("all", $types[0]) || !isset($types[0])) echo ' selected="selected" '; ?> >
+                        <option value="all" <?php if(in_array("all", $types) || !isset($types)) echo ' selected="selected" '; ?> >
                             <?php echo translate( 'All', 'unlimited-codes' ) ?>
                         </option>
                         <?php
@@ -319,7 +317,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                                 
                                 echo '<option ';
 
-                                if( in_array($row->post_type, $types[0]) )
+                                if( in_array($row->post_type, $types) )
                                     echo ' selected="selected" ';
 
                                 echo ' value="'.$row->post_type.'">'.ucfirst ($row->post_type).'</option>';
@@ -339,11 +337,11 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
                             $posts = $this->uc_get_posts($post_types,  get_the_ID());
             
-                            $values = get_post_meta( get_the_ID(), 'uc_post_code_id');
+                            $values = get_post_meta( get_the_ID(), 'uc_post_code_id', true);
 
                             echo '<option value="-1" ';
 
-                            if(in_array(-1, $values[0]) || get_post_meta( get_the_ID(), 'uc_post_type_id', true) == "")
+                            if(in_array(-1, $values) || get_post_meta( get_the_ID(), 'uc_post_type_id', true) == "")
                                 echo ' selected="selected" ';
 
                             echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
@@ -352,7 +350,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                             {
                                 echo '<option ';
 
-                                 if(in_array($post->ID, $values[0]))
+                                 if(in_array($post->ID, $values))
                                      echo ' selected="selected" ';
 
                                 echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
@@ -370,13 +368,13 @@ if ( ! class_exists( 'unlimited_codes' ) )
                     <select multiple="multiple" id="uc_exclude_post_code_id" name="uc_exclude_post_code_id[]">
                         <?php
 
-                            $values = get_post_meta( get_the_ID(), 'uc_exclude_post_code_id');
+                            $values = get_post_meta( get_the_ID(), 'uc_exclude_post_code_id', true);
 
                             foreach($posts as $post)
                             {
                                 echo '<option ';
 
-                                 if(in_array($post->ID, $values[0]))
+                                 if(in_array($post->ID, $values))
                                      echo ' selected="selected" ';
 
                                 echo ' value="'.$post->ID.'">'.$post->post_title.'</option>';
@@ -437,11 +435,11 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
                                 if ( !empty( $languages ) ) 
                                 {
-                                    $values = get_post_meta( get_the_ID(), 'uc_wpml_languages_load');
+                                    $values = get_post_meta( get_the_ID(), 'uc_wpml_languages_load', true);
 
                                     echo '<option value="all" ';
 
-                                    if(in_array("all", $values[0]) || empty($values[0]))
+                                    if(in_array("all", $values) || empty($values))
                                         echo ' selected="selected" ';
 
                                     echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
@@ -450,7 +448,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                                     {
                                         echo '<option ';
 
-                                         if(in_array($language["code"], $values[0]))
+                                         if(in_array($language["code"], $values))
                                              echo ' selected="selected" ';
 
                                         echo ' value="'.$language["code"].'">'.$language["translated_name"].'</option>';
@@ -583,15 +581,15 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
             foreach($codes as $code)
             {
-                $post_type = get_post_meta( $code->ID, 'uc_post_type_id' );
-                $post_id = get_post_meta( $code->ID, 'uc_post_code_id');
-                $exclude_post_id = get_post_meta( $code->ID, 'uc_exclude_post_code_id'); 
+                $post_type = get_post_meta( $code->ID, 'uc_post_type_id', true );
+                $post_id = get_post_meta( $code->ID, 'uc_post_code_id', true);
+                $exclude_post_id = get_post_meta( $code->ID, 'uc_exclude_post_code_id', true); 
                 $post_location = get_post_meta( $code->ID, 'uc_location_code_page', true );
                 
                 if($this->check_wpml_languages($code->ID))
-                    if(in_array("all", $post_type[0]) || in_array(get_post_type(get_the_id()), $post_type[0]))
+                    if(in_array("all", $post_type) || in_array(get_post_type(get_the_id()), $post_type))
                         if( $post_location == $zone)
-                            if(in_array(get_the_id(), $post_id[0]) || in_array(-1, $post_id[0]) && !in_array(get_the_id(), $exclude_post_id[0] ))
+                            if(in_array(get_the_id(), $post_id) || in_array(-1, $post_id) && !in_array(get_the_id(), $exclude_post_id ))
                                 $result .= $code->post_content;
             }	
 
@@ -602,9 +600,9 @@ if ( ! class_exists( 'unlimited_codes' ) )
         {
             if ( function_exists('icl_object_id') )  
             {
-                $wpml_languages = get_post_meta( $code_id, 'uc_wpml_languages_load' );
+                $wpml_languages = get_post_meta( $code_id, 'uc_wpml_languages_load', true );
                 
-                if(in_array("all", $wpml_languages[0]) || in_array(ICL_LANGUAGE_CODE, $wpml_languages[0]) )
+                if(in_array("all", $wpml_languages) || in_array(ICL_LANGUAGE_CODE, $wpml_languages) )
                     return true;
                 else
                     return false;
