@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.7.7
+Version: 1.7.9
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
@@ -87,7 +87,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 'capability_type' => 'post',
                 'hierarchical' => false,
                 'menu_position' => 50,
-                'menu_icon' => 'dashicons-editor-code',
+                'menu_icon' => WP_PLUGIN_URL. '/'.basename( dirname( __FILE__ ) ).'/img/ufc_icon.png',
                 'supports' => array( 'title', 'editor', 'revisions')
             );
 
@@ -302,7 +302,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 </p>
                 <p>
                     <select multiple="multiple"  id="uc_post_type_id" name="uc_post_type_id[]">
-                        <option value="all" <?php if(in_array("all", $types) || !isset($types)) echo ' selected="selected" '; ?> >
+                        <option value="all" <?php if(in_array("all", $types)) echo ' selected="selected" '; ?> >
                             <?php echo translate( 'All', 'unlimited-codes' ) ?>
                         </option>
                         <?php
@@ -341,7 +341,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
                             echo '<option value="-1" ';
 
-                            if(in_array(-1, $values) || get_post_meta( get_the_ID(), 'uc_post_type_id', true) == "")
+                            if(in_array(-1, $values))
                                 echo ' selected="selected" ';
 
                             echo '>'.translate( 'All', 'unlimited-codes' ).'</option>';
@@ -764,6 +764,15 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
         public function uc_vc_post_taxonomy() 
         {
+            $values = array();
+
+            $taxonomies = get_taxonomies();
+
+            foreach ($taxonomies as $tax)
+            {
+                $values[$tax] = $tax;
+            }
+
             vc_map( array(
                 "name" => translate( "Post taxonomy terms", "unlimited-codes" ),
                 "base" => "uc_post_taxonomy_terms",
@@ -774,9 +783,10 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 'admin_enqueue_css' => array(get_template_directory_uri().'/vc_extend/bartag.css'),
                 "params" => array(              
                     array(
-                        "type" => "textfield",
+                        "type" => "dropdown",
                         "holder" => "div",
                         "class" => "",
+                        "value" => $values,
                         "heading" => translate( "Taxonomy post:", "unlimited-codes" ),
                         "param_name" => "taxonomy",
                         "description" => translate( "Type the taxonomy to show the terms.", "unlimited-codes" )
