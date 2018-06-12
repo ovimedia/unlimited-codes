@@ -69,7 +69,7 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 'singular_name' => translate( 'Unlimited Code', 'unlimited-codes' ),
                 'add_new' =>  translate( 'Add code', 'unlimited-codes' ),
                 'add_new_item' => translate( 'Add new code', 'unlimited-codes' ),
-                'edit_item' => translate( 'Edit codes', 'unlimited-codes' ),
+                'edit_item' => translate( 'Edit code', 'unlimited-codes' ),
                 'new_item' => translate( 'New code', 'unlimited-codes' ),
                 'view_item' => translate( 'Show code', 'unlimited-codes' ),
                 'search_items' => translate( 'Search codes', 'unlimited-codes' ),
@@ -591,7 +591,28 @@ if ( ! class_exists( 'unlimited_codes' ) )
                         if( $post_location == $zone)
                             if(in_array(get_the_id(), $post_id) || in_array(-1, $post_id) && !in_array(get_the_id(), $exclude_post_id ))
                                 $result .= $code->post_content;
+
             }	
+
+            $pos = 0;
+
+            $total = substr_count($result, 'css=".', $pos);
+            
+            if($total > 0)
+            {
+                $result .= "<style>";
+
+                for($x=0; $x < $total; $x++)
+                {
+                    $pos = strpos($result, 'css=".', $pos);
+                    
+                    $result .= substr($result, $pos + 5, strpos( $result, "}", $pos) - $pos - 4);
+
+                    $pos++;
+                }
+
+                $result .= "</style>";
+            }
 
             return $this->uc_check_shortcode($result, $code->ID);
         }
