@@ -584,7 +584,6 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 $post_type = get_post_meta( $code->ID, 'uc_post_type_id', true );
                 $post_id = get_post_meta( $code->ID, 'uc_post_code_id', true);
                 $exclude_post_id = get_post_meta( $code->ID, 'uc_exclude_post_code_id', true); 
-                $post_location = get_post_meta( $code->ID, 'uc_location_code_page', true );
                 
                 if($this->check_wpml_languages($code->ID))
                     if(in_array("all", $post_type) || in_array(get_post_type(get_the_id()), $post_type))
