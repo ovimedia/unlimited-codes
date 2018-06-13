@@ -5,7 +5,7 @@ Description: Plugin that allows include different code types in your Wordpress.
 Author: Ovi García - ovimedia.es
 Author URI: http://www.ovimedia.es/
 Text Domain: unlimited-codes
-Version: 1.7.9
+Version: 1.8
 Plugin URI: https://github.com/ovimedia/unlimited-codes
 */
 
@@ -571,8 +571,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 'meta_query' => array(
                     array(
                         'key' => 'uc_location_code_page',
-                        'value'  =>  'neither',
-                        'compare' => 'NOT IN'
+                        'value'  =>  $zone,
+                        'compare' => 'IN'
                     )
                 )
             ); 
@@ -588,10 +588,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
                 
                 if($this->check_wpml_languages($code->ID))
                     if(in_array("all", $post_type) || in_array(get_post_type(get_the_id()), $post_type))
-                        if( $post_location == $zone)
                             if(in_array(get_the_id(), $post_id) || in_array(-1, $post_id) && !in_array(get_the_id(), $exclude_post_id ))
                                 $result .= $code->post_content;
-
             }	
 
             $pos = 0;
@@ -610,6 +608,8 @@ if ( ! class_exists( 'unlimited_codes' ) )
 
                     $pos++;
                 }
+
+                $result .= get_post_meta( $code->ID, "_wpb_post_custom_css", true );
 
                 $result .= "</style>";
             }
